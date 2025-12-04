@@ -3,9 +3,6 @@
 
 
 
-
-
-
 ## idee de base :
 cree un site pour faire decouvrir l'investissement dans des entreprises 
 
@@ -41,36 +38,11 @@ ajoutez les videos avec un mini youtube a partir des videos faites par ia sur ti
 
 
 
-## idee secondaire en attendant 
+## idee secondaire en attendant le dev du projet objectif 2 par mois 
 
 faire des videos ia pour se faire connaitre sur tik tok
 
 
-## liste de lecture : 
-
-afin de lire plus facilement les differents articles prendre par petit bout faire un resume et demander une note sur 10 a gpt avec 3 point cles essentiels manquant dans la lecture.
-
-lire des documents sur les differentes techno web : resume dans resume.md
-ux ui : principes de base du design (hiérarchie visuelle, alignement, spacing)
-        structure d’une page web
-        comment faire des maquettes simples (Figma)
-        design system minimal (couleurs, typographie, composants)
-base de donnee : 
-        comprense les types de db
-auth :  authentification (connection , inscription ,reset ,email)
-        RLS row level security
-        securite backend next js
-ia via api : comprendre comment marche les api
-             appels back end only 
-            limiter les quotas
-notations ia : comprendre comment entrainer un modele supervise
-cybersecurite : owasp top 10 (les erreurs a ne pas faire)
-                securite api
-                rate limiting
-                securiser l auth
-                stockage mdp
-                sql injection
-            
 
 ## etapes de defintion : 
 
@@ -78,5 +50,9 @@ cybersecurite : owasp top 10 (les erreurs a ne pas faire)
 -definir les criteres
 -affiner l'idee
 
+## comment ne pas perdre d argent
 
-
+Fonctionnalités premium (abonnement) : 
+Notation IA trois essais libre
+Accès aux cours avancés
+Jeu illimité
