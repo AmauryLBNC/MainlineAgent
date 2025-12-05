@@ -1,46 +1,3 @@
-# MainlineAgent
-
-
-
-
-## idee de base :
-cree un site pour faire decouvrir l'investissement dans des entreprises 
-
-
-Les idees en vrac : 
-
-
-
-### produit jeu
-un jeu avec ia utiliser afin de pouvoir se rappeler des criteres tout en laissant une ia ouverte a toute les strategies
-
-### produit notation
-il faut donc faire une ia qui note une entreprise en fonction de texte par mot cle et en fonction de bilan financier et enfin du type de structure et tous les autres criteres
-
-### produit cours
-des petits cours sous forme de doc pdf
-
-
-### produit addiction 
-faire une cication du jour avec des phrases de warren bufffet
-un mini “Quizz financier” gratuit
-1 quizz et le deuxiemme tu dois creer un comptetoujours gratuit mais ca fait un utilisateur
-une fiche “Entreprise du jour”
-
-
-### produit annexe
-rajouter un blog de recit de bourse objectif avertir des risques et montrer des belles histoire  tout en montrant aussi qu il n y a pas qu une voie
-systeme de progression avec grades et badges
-Un compteur de progression global
-Type “Tu as progressé de 34%
-Défi hebdomadaire
-ajoutez les videos avec un mini youtube a partir des videos faites par ia sur tik tok
-
-
-
-## idee secondaire en attendant 
-
-faire des videos ia pour se faire connaitre sur tik tok
 
 
 ## liste de lecture : 
@@ -68,8 +25,8 @@ authentification (connection , inscription ,reset ,email)
 RLS row level security
 securite backend next js
 #### liens
-OWASP Top 10 : https://owasp.org/www-project-top-ten/
-Supabase Auth : https://supabase.com/docs/guides/auth
+OWASP Top 10 : https://owasp.org/www-project-top-ten/ done
+Supabase Auth : https://supabase.com/docs/guides/auth done
 “JWT vs Cookies explained” — articles de Auth0
 “Secure Next.js API Routes” — Vercel blog
 
@@ -96,16 +53,12 @@ Scikit-Learn (RandomForest, etc.) : https://scikit-learn.org
 
 
 ### cybersecurite
-owasp top 10 (les erreurs a ne pas faire)
-securite api
-rate limiting
-securiser l auth
-stockage mdp
-sql injection
+owasp top 10 (les erreurs a ne pas faire) done
+
 #### liens
-OWASP Cheat Sheets : https://cheatsheetseries.owasp.org
-Supabase security guide (RLS)
-“Secure coding practices” — Snyk blog
+OWASP Cheat Sheets : https://cheatsheetseries.owasp.org done
+Supabase security guide (RLS) done
+“Secure coding practices” — Snyk blog done
 Mozilla Developer Security Guide : https://infosec.mozilla.org
 
 

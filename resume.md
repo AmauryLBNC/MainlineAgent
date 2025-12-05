@@ -143,5 +143,22 @@ user_id );
 insertion et suppression - verifier que user.id correspond a auth.user.id avec '''with check'''
 mis a jour - combiner using et with check pour le user ne puisse modifier que ses lignes et ne change pas le champs d appropriation
 
+choisir les roles supabase differencie les roles anon ( non authentifié) authentificated specifier le role dans la clause to
+utilise les fonctions d authentifications correctement
+auth.uid() renvoie l id de l utilisaeur connecte
+auth.jwt renvoie le jwt complet (ne rien stocker dans raw_user_meta_data_)
+ajoutez des index sur les colonnes utiliser 
 
-cours server composant et client composant et coursb sql orientez pratiqque tiggzer de secu et faire des exos a la fin
+### Bonnes Pratiques
+utiliser TLS pour les communications
+attention au parametre des buckets utiliser url signé avec expiration
+limité les types et les tailles des fichiers authorisée
+regarder le biller " harden your supabase"
+
+client command
+
+  const [count, setCount] = useState(0); - permet de mettre a jour la valeur et rerend la page
+  useEffect(() => {}, []); - s execute des l arrive sur la page
+  const inputRef = useRef(null); - permet par exemple de faire en sorte que le user ai le focus sur un champs des son arriver sur la page
+  const handleClick = useCallback() - permet d avoir bune fonction qui ne se rerend pas
+  const sorted = useMemo() - permet de retenir le calcul
