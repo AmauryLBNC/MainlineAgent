@@ -155,6 +155,11 @@ attention au parametre des buckets utiliser url signé avec expiration
 limité les types et les tailles des fichiers authorisée
 regarder le biller " harden your supabase"
 
+
+
+# next js 16
+
+## cours nexts js video youtube de 4h arretez a 1h23 a continuez
 client command
 
   const [count, setCount] = useState(0); - permet de mettre a jour la valeur et rerend la page
@@ -162,3 +167,8 @@ client command
   const inputRef = useRef(null); - permet par exemple de faire en sorte que le user ai le focus sur un champs des son arriver sur la page
   const handleClick = useCallback() - permet d avoir bune fonction qui ne se rerend pas
   const sorted = useMemo() - permet de retenir le calcul
+  alt detailler les logo/image qui sont pertinent  a la lecture
+
+## documentation de next js 16
+
+clsx permet de faire de la mise forme conditionelle a reregarder
