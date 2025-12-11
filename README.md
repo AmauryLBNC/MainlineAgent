@@ -5,7 +5,7 @@
 
 ## idee de base :
 cree un site pour faire decouvrir l'investissement dans des entreprises 
-
+le faire en chinois aussi monetiser avec des pubs fr anglais et chinois
 
 Les idees en vrac : 
 
@@ -56,3 +56,8 @@ Fonctionnalités premium (abonnement) :
 Notation IA trois essais libre
 Accès aux cours avancés
 Jeu illimité
+
+
+https://www.amazon.fr/Synology-DiskStation-DS225-Baies-Disque/dp/B0FB7KQLR1?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&psc=1&smid=A3ULSVNRJZ7IF5&utm_source=chatgpt.com
+faire une ia qui tourne en local que l on request
+https://vercel.com/templates/next.js

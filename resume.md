@@ -155,11 +155,6 @@ attention au parametre des buckets utiliser url signé avec expiration
 limité les types et les tailles des fichiers authorisée
 regarder le biller " harden your supabase"
 
-
-
-# next js 16
-
-## cours nexts js video youtube de 4h arretez a 1h23 a continuez
 client command
 
   const [count, setCount] = useState(0); - permet de mettre a jour la valeur et rerend la page
@@ -167,8 +162,26 @@ client command
   const inputRef = useRef(null); - permet par exemple de faire en sorte que le user ai le focus sur un champs des son arriver sur la page
   const handleClick = useCallback() - permet d avoir bune fonction qui ne se rerend pas
   const sorted = useMemo() - permet de retenir le calcul
-  alt detailler les logo/image qui sont pertinent  a la lecture
 
-## documentation de next js 16
 
-clsx permet de faire de la mise forme conditionelle a reregarder
+## React
+
+https://www.techtalksweekly.io/p/the-most-watched-react-nextjs-vue
+import { motion } from "framer-motion";
+npm install babel-plugin-react-compiler@latest -> plus besoin de use memo et de use callback next 16
+put reactCompiler : true
+
+
+fonction de dynamic routing 
+const fonction = async ( {params} : { params : Promise<{id : string}>})
+const{id} = await params
+
+faire un fichier (root) ou on met le layout que l on veut en general 
+et fzauire un autre fichier (dabshboard) avec dashboard dedanas ou l on met un autre layout
+
+check error handling doc pour error.tsx 
+use server side fetching with next js 16
+tw animate css
+il faut aussi absolument regarder les tutos next js
+utiliser les siunppets react
+react bits pour ui a regarder

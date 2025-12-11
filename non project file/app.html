@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>React Children + onChange Demo</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+
+      .card {
+        border: 2px solid #333;
+        padding: 16px;
+        border-radius: 8px;
+        background: white;
+        width: 350px;
+      }
+
+      input {
+        padding: 8px;
+        margin: 10px 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Démo React : children + onChange</h2>
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+      // Un composant qui "entoure" son contenu grâce à children
+      // Un composant enfant qui envoie la valeur au parent
+      
+
+      // Le parent
+      function App() {
+        const [text, setText] = React.useState("");
+
+        return (
+          <Card>
+            <h3>Exemple pratique</h3>
+
+            <InputChild onChange={setText} />
+
+            <p>Texte saisi : <strong>{text}</strong></p>
+          </Card>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+
+    </script>
+  </body>
+</html>
+
