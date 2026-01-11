@@ -185,3 +185,140 @@ tw animate css
 il faut aussi absolument regarder les tutos next js
 utiliser les siunppets react
 react bits pour ui a regarder
+
+
+il faut que je trouve project strucute for the file
+il faut que je trouve la base de donnée ce qu il faut retenir 
+il faut que je trouve sur quel service l heberge peut etre da therme sur mon serveur mais en attendant sur vercel why not
+il faut faire un site pour tester toutes les connaissances without ai
+
+
+qui ? Amaury
+quoi ? fait une application de finance
+comment ? avec du web
+pourquoi ? pour faire connaitre une nouvelle facon d investir via la connaissance du fonctionemment des entreprisesdnas lesquels on investi
+ou ? en france et en chine pour l instant 
+
+
+## Stripe
+
+stripe provide a unified set of REST API for 
+accepting payement managing billing and 
+subscription and
+sending payouts and 
+building financial workflows
+
+
+### tuto stripe 
+
+npm create-next-app my_app
+npm install 
+npm run dev
+faire un .env.local
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_ID=price_...
+NEXT_PUBLIC_APP_URL=url_address
+folder app/api/checkout_sessions/route.ts : 
+'''
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+export async function POST() {
+  try {
+    const priceId = process.env.STRIPE_PRICE_ID;
+    if (!priceId) {
+      throw new Error("STRIPE_PRICE_ID manquant côté serveur");
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cancel`,
+      billing_address_collection: "auto",
+      allow_promotion_codes: true,
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Impossible de créer la session Checkout" },
+      { status: 500 }
+    );
+  }
+}
+'''
+app/subscribe/page.tsx: 
+"use client";
+import { useState } from "react";
+
+const PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID!;
+
+export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubscribe = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await fetch("/api/checkout_sessions", {
+      method: "POST",
+    });
+
+    if (!res.ok) throw new Error("Erreur lors de la création de la session");
+    const { url } = await res.json();
+    if (!url) throw new Error("URL de redirection introuvable.");
+
+    window.location.assign(url);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Une erreur est survenue";
+    setError(message);
+    setLoading(false);
+  }
+};
+
+
+
+
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <p className="text-xs uppercase tracking-[0.2em] text-amber-300 mb-3">Plan conseillé</p>
+        <h1 className="text-2xl font-semibold mb-2">Plan Pro</h1>
+        <p className="text-slate-300 mb-6">
+          Accès complet à la plateforme, support prioritaire et mises à jour automatiques.
+        </p>
+
+        <div className="flex items-baseline gap-2 mb-6">
+          <span className="text-4xl font-bold">19€</span>
+          <span className="text-slate-400">/ mois</span>
+        </div>
+
+        <ul className="space-y-2 text-sm text-slate-200 mb-8">
+          <li>• Projets illimités</li>
+          <li>• Collaboration en équipe</li>
+          <li>• Statistiques avancées</li>
+          <li>• Support prioritaire</li>
+        </ul>
+
+        <button
+          onClick={handleSubscribe}
+          disabled={loading}
+          className="w-full rounded-lg bg-amber-400 text-slate-950 font-semibold py-3 transition  hover:shadow-lg disabled:opacity-60"
+        >
+          {loading ? "Redirection..." : "S’abonner"}
+        </button>
+
+        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      </div>
+    </div>
+  );
+}
+
