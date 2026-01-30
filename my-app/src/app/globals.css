@@ -33,6 +33,12 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  /* Palette étendue harmonisée */
+  --accent-a: oklch(0.85 0.11 230); /* bleu doux */
+  --accent-b: oklch(0.78 0.12 280); /* violet brume */
+  --accent-c: oklch(0.82 0.10 150); /* vert menthe */
+  --accent-d: oklch(0.74 0.15 50);  /* orange miel */
+  --accent-e: oklch(0.88 0.09 10);  /* sable clair */
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -79,6 +85,29 @@
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
   --sidebar-border: oklch(0.928 0.006 264.531);
   --sidebar-ring: oklch(0.707 0.022 261.325);
+  /* Auth CTAs */
+  --auth-signin: oklch(0.36 0.15 254);
+  --auth-signin-hover: oklch(0.32 0.15 254);
+  /* Enterprise (fiche du jour) theme */
+  --enterprise-from: #0c4a6e;
+  --enterprise-mid: #075985;
+  --enterprise-to: #0369a1;
+  --enterprise-text-strong: #e0f2fe;
+  --enterprise-text-soft: #cfe7fb;
+  --enterprise-card-bg: rgba(255, 255, 255, 0.1);
+  --enterprise-border: rgba(255, 255, 255, 0.2);
+  --enterprise-border-strong: rgba(255, 255, 255, 0.3);
+  --enterprise-cta-bg: #ffffff;
+  --enterprise-cta-text: var(--primary);
+  --enterprise-overlay-from: rgba(125, 211, 252, 0.4);
+  --enterprise-overlay-mid: rgba(56, 189, 248, 0.25);
+  --enterprise-overlay-to: rgba(255, 255, 255, 0);
+  /* Hero backgrounds */
+  --hero-one-from: oklch(0.95 0.07 340);
+  --hero-one-to: oklch(0.88 0.08 280);
+  --hero-two-from: oklch(0.38 0.14 210); /* bleu nuit */
+  --hero-two-mid: oklch(0.58 0.11 240); /* bleu moyen */
+  --hero-two-to: oklch(0.92 0.04 240);  /* bleu brume clair */
 }
 
 .dark {
@@ -121,5 +150,175 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes text-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-text-reveal {
+    animation: text-reveal 0.8s ease-out;
+  }
+
+  @keyframes typing {
+    from {
+      width: 0;
+      opacity: 0.1;
+    }
+    to {
+      width: 100%;
+      opacity: 1;
+    }
+  }
+
+  .animate-typing {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 2px solid currentColor;
+    animation: typing 4s steps(40, end), blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      border-color: transparent;
+    }
+  }
+
+  @keyframes pan-slow {
+    from {
+      transform: translateX(-10%);
+    }
+    to {
+      transform: translateX(10%);
+    }
+  }
+
+  .animate-pan-slow {
+    animation: pan-slow 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Enterprise du jour helpers (évite couleurs en dur dans la page) */
+  .bg-enterprise-gradient {
+    background: linear-gradient(
+      90deg,
+      var(--enterprise-from),
+      var(--enterprise-mid),
+      var(--enterprise-to)
+    );
+  }
+
+  .text-enterprise-strong {
+    color: var(--enterprise-text-strong);
+  }
+
+  .text-enterprise-soft {
+    color: var(--enterprise-text-soft);
+  }
+
+  .bg-enterprise-card {
+    background: var(--enterprise-card-bg);
+    backdrop-filter: blur(8px);
+  }
+
+  .border-enterprise {
+    border-color: var(--enterprise-border);
+  }
+
+  .border-enterprise-strong {
+    border-color: var(--enterprise-border-strong);
+  }
+
+  .bg-enterprise-cta {
+    background: var(--enterprise-cta-bg);
+    color: var(--enterprise-cta-text);
+  }
+
+  .bg-enterprise-overlay {
+    background: linear-gradient(
+      135deg,
+      var(--enterprise-overlay-from),
+      var(--enterprise-overlay-mid),
+      var(--enterprise-overlay-to)
+    );
+  }
+
+  /* Smooth background transitions on scroll */
+  .bg-transition {
+    transition: background 0.7s ease, background-color 0.7s ease;
+  }
+
+  .bg-hero-one {
+    background: radial-gradient(circle at 20% 20%, var(--hero-one-to) 0%, transparent 30%),
+      radial-gradient(circle at 80% 10%, var(--primary)/30 0%, transparent 32%),
+      linear-gradient(135deg, var(--hero-one-from), var(--hero-one-to));
+  }
+
+  .bg-hero-two {
+    background: radial-gradient(circle at 15% 20%, var(--hero-two-to)/35 0%, transparent 32%),
+      radial-gradient(circle at 80% 10%, var(--accent-a)/28 0%, transparent 36%),
+      linear-gradient(140deg, var(--hero-two-from), var(--hero-two-mid), var(--hero-two-to));
+  }
+
+  @keyframes grow-card {
+    0% {
+      transform: scale(0.08);
+      opacity: 0;
+      border-radius: 999px;
+    }
+    60% {
+      transform: scale(1.08);
+      opacity: 1;
+      border-radius: 28px;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+      border-radius: 24px;
+    }
+  }
+
+  .animate-grow-card {
+    animation: grow-card 0.85s cubic-bezier(0.22, 0.7, 0.26, 1) both;
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-delayed {
+    animation: fade-in-up 0.6s ease 0.4s both;
   }
 }

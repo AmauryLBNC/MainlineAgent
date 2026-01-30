@@ -55,5 +55,7 @@ sensibilite a la conjoncture 0 a 10
 93 
 
 
-il faut faire un systme
+il faut ajoputer des variables de secteur et sous secteur et comparer uniquement les entreprises de meme secteur
+il faut affiner cette base avec des variables de type string pour ameliorer mon jugement lors de la prise de decisions et pour que plus tard je sois en capacite de l exploiter et que ce soit deja pret
+il faut faire un systeme de comparaison pour etre le plus juste possible avec une application faites par moi meme
 il faut a chaque fois que je mette les reponses evidentes pourquoi la boite est bonne ou non je donne les variables qui a penche en plus ou en moins
