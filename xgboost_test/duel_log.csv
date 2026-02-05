@@ -1,0 +1,3 @@
+timestamp,ticker,row_index,old_score,new_score,csv_path
+2026-01-11T20:42:15,ODFL,279,2,3,C:\Users\amaur\Documents\GitHub\MainlineAgent\xgboost_test\xgboost_clean_data.csv
+2026-01-11T20:42:26,JCI,212,3,4,C:\Users\amaur\Documents\GitHub\MainlineAgent\xgboost_test\xgboost_clean_data.csv

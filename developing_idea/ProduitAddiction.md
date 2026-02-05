@@ -10,3 +10,6 @@ faire une api ou trouver une api avec les phrases cultes de warren buffet trouve
 trouver une maniere d afficher cela de maniere belle texte qui apparait en defilement dquand on arrive sur la page
 quizz financier gratuit 50 questions max on en choisis 10 et on lui dit son profile les avantages de son profile et les risques et se que le site lui apporterait
 une fiche entreprise du jour et il faut une image par entreprise et 4 textes differents pour pouvoir changer chaque annee et surtout il faut un par semaine et cela automatise le changement pour la semaine d apres
+
+
+HOME
