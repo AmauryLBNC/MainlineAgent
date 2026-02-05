@@ -12,7 +12,7 @@ export default function Home() {
   return (
     
     <div className="flex min-h-screen  justify-center bg-zinc-50 font-sans dark:bg-black">
-      <div className="flex items-center justify-center mt-0 w-full h-1/8 bg-black">
+      <div className="flex items-center justify-center mt-0 w-full h-1/8 bg-black ">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>

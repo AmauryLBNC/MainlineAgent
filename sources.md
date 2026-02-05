@@ -4,3 +4,5 @@ https://owasp.org/www-project-top-ten/
 Real-World Cryptography Paperback – 20 Oct. 2021
 Hacking Cryptography (Kamran Khan & Bill Cox)
 cryptography applique bruce cheplus quoi
+
+radom forest 
