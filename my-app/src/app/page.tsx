@@ -148,20 +148,21 @@ function HeroAndQuiz() {
     <section className="min-h-screen w-full bg-hero-one px-6 py-14 md:py-16 lg:py-20">
       <div className="mx-auto max-w-6xl grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-start">
         <div className="space-y-6">
-          <Reveal className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary animate-float">
-            <span>Citation du jour</span>
-            <span className="h-2 w-2 rounded-full bg-primary animate-ping-slow" />
-          </Reveal>
-
           <Reveal>
-            <div className="relative overflow-hidden rounded-3xl border border-enterprise bg-enterprise-card p-7 shadow-xl backdrop-blur transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-enterprise-strong">
-              <p className="absolute inset-0 flex items-center justify-center px-8 text-center text-lg font-medium leading-relaxed text-enterprise-strong animate-typing select-none">
-                {warrenQuote}
-              </p>
-
-              <p className="relative mt-32 text-sm text-muted-foreground animate-text-reveal">
-                Le texte se dessine lettre par lettre pour marquer l’idée clé du jour et encourager la réflexion avant d’agir.
-              </p>
+            <div className="group relative overflow-hidden rounded-3xl border border-enterprise bg-enterprise-card p-7 shadow-xl backdrop-blur transition duration-250 hover:-translate-y-1.5 hover:shadow-2xl hover:border-enterprise-strong hover:bg-enterprise-overlay">
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-300 bg-enterprise-overlay" />
+              <div className="relative">
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary animate-float">
+                  <span>Citation du jour</span>
+                  <span className="h-2 w-2 rounded-full bg-primary animate-ping-slow" />
+                </div>
+                <div className="mt-5 flex min-h-[140px] items-center justify-center px-2 text-center text-lg font-medium leading-relaxed text-enterprise-strong">
+                  <span className="animate-typing select-none">{warrenQuote}</span>
+                </div>
+                <p className="text-sm text-muted-foreground animate-text-reveal">
+                  Le texte se dessine lettre par lettre pour marquer l’idée clé du jour et encourager la réflexion avant d’agir.
+                </p>
+              </div>
             </div>
           </Reveal>
         </div>

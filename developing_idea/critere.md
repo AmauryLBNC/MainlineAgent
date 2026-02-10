@@ -1,7 +1,7 @@
 # data financiere
 
-chiffre d affaire
-CAGR CA
+chiffre d affaire   get_revenue
+CAGR CA             get_cagr
 CAGR endettement court therme 
 CAGR marge 
 CAGR endettement long therme 
@@ -13,7 +13,7 @@ marge
 endettement long therme 
 endettement court therme 
 per
-tresorerie
+tresorerie  
 CAPEX / CA
 14
 
