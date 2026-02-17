@@ -202,13 +202,5 @@ for l in sp500_tickers:
     info=yfinance_ticker.info
     income_statement=yfinance_ticker.income_stmt
     balance_sheet=yfinance_ticker.balance_sheet
-    print(l)
-    print("marge net : ")
-    pprint(get_cagr_marge_net(get_marge_net(income_statement)))
-    print("endettement long therme : ")
-    pprint(get_cagr_endettement_long_terme(get_endettement_long_terme (balance_sheet)))
-    print("resultat net : ")
-    pprint(get_cagr_resultat_net(get_resultat_net(income_statement)))
-    print("revenue : ")
-    pprint(get_cagr_revenue(get_revenue(yfinance_ticker)))
+
     
