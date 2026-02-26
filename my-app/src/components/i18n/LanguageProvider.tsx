@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { copy, defaultLanguage, type Language } from "@/lib/i18n";
+import { copy, defaultLanguage, type Language } from "@/components/i18n";
 
 type I18nContextValue = {
   language: Language;
@@ -14,18 +14,18 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 const STORAGE_KEY = "mainagent-language";
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>(defaultLanguage);
-
-  useEffect(() => {
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") {
+      return defaultLanguage;
+    }
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored === "fr" || stored === "en") {
-      setLanguage(stored);
-      return;
+      return stored;
     }
 
     const browserLanguage = window.navigator.language.toLowerCase();
-    setLanguage(browserLanguage.startsWith("fr") ? "fr" : "en");
-  }, []);
+    return browserLanguage.startsWith("fr") ? "fr" : "en";
+  });
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, language);

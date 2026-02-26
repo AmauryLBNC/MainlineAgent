@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import AnimatedThreads from "@/components/ui/AnimatedThreads";
+import { useI18n } from "@/components/i18n/LanguageProvider";
 import { SECTION_EVENT, type SectionId } from "@/lib/section-navigation";
 import { cn } from "@/lib/utils";
 
@@ -47,63 +48,8 @@ const THREAD_THEMES: ThreadTone[] = [
   { line: [120, 98, 74], glow: [200, 178, 146] },
 ];
 
-const QUIZ_QUESTIONS: QuizQuestion[] = [
-  {
-    prompt:
-      "Quel indicateur mesure la rentabilite d'une entreprise par rapport a ses capitaux propres ?",
-    options: ["Marge brute", "ROE (Return on Equity)", "PER", "EBITDA"],
-    correct: 1,
-    note: "Le ROE compare le resultat net aux capitaux propres.",
-  },
-  {
-    prompt: "Que signifie generalement un PER eleve ?",
-    options: [
-      "Le marche anticipe une croissance forte ou valorise cher les benefices",
-      "L'entreprise n'a pas de dette",
-      "Les dividendes sont assures",
-      "Le chiffre d'affaires est en baisse",
-    ],
-    correct: 0,
-    note:
-      "Un PER eleve reflete souvent des attentes de croissance ou une valorisation exigeante.",
-  },
-  {
-    prompt: "Quel est l'effet principal de la diversification d'un portefeuille ?",
-    options: [
-      "Augmenter le levier",
-      "Reduire le risque specifique",
-      "Garantir le rendement",
-      "Eviter toute volatilite",
-    ],
-    correct: 1,
-    note: "La diversification limite l'impact d'un risque propre a un seul actif.",
-  },
-  {
-    prompt: "Qu'est-ce qu'une obligation ?",
-    options: [
-      "Une part de capital",
-      "Un titre de dette avec un coupon",
-      "Un derive de change",
-      "Une action privilegiee",
-    ],
-    correct: 1,
-    note: "Une obligation represente une dette emise par une entreprise ou un Etat.",
-  },
-  {
-    prompt: "Quel est l'objectif principal d'un bilan ?",
-    options: [
-      "Prevoir les ventes futures",
-      "Donner une photographie du patrimoine a une date donnee",
-      "Calculer la marge operationnelle",
-      "Evaluer la satisfaction client",
-    ],
-    correct: 1,
-    note:
-      "Le bilan presente les actifs, les passifs et les capitaux propres a un instant T.",
-  },
-];
-
 export default function Home() {
+  const { copy } = useI18n();
   const [active, setActive] = useState(0);
   const [incoming, setIncoming] = useState<number | null>(null);
   const [direction, setDirection] = useState<Direction>("down");
@@ -115,7 +61,7 @@ export default function Home() {
   const touchStartY = useRef(0);
   const touchStartX = useRef(0);
   const touchAccum = useRef(0);
-  const lastActivity = useRef(Date.now());
+  const lastActivity = useRef(0);
   const idleTimer = useRef<number | null>(null);
   const activeRef = useRef(active);
   const lockedRef = useRef(locked);
@@ -126,6 +72,17 @@ export default function Home() {
 
   const startTransition = useCallback((dir: Direction, target: number) => {
     if (lockedRef.current || target === activeRef.current) return;
+
+    if (
+      activeRef.current === quizIndex &&
+      target !== quizIndex &&
+      pausedByQuiz.current
+    ) {
+      pausedByQuiz.current = false;
+      rotationPausedRef.current = false;
+      setRotationPaused(false);
+    }
+
     lockedRef.current = true;
     setLocked(true);
     setDirection(dir);
@@ -143,7 +100,7 @@ export default function Home() {
         setLocked(false);
       }, 950);
     });
-  }, []);
+  }, [quizIndex]);
 
   useEffect(() => {
     activeRef.current = active;
@@ -151,30 +108,32 @@ export default function Home() {
     rotationPausedRef.current = rotationPaused;
   }, [active, locked, rotationPaused]);
 
+  useEffect(() => {
+    lastActivity.current = Date.now();
+  }, []);
+
   const scheduleAutoRotate = useCallback(() => {
     if (idleTimer.current) {
       window.clearTimeout(idleTimer.current);
     }
     if (rotationPausedRef.current) return;
 
+    const tick = () => {
+      if (rotationPausedRef.current) return;
+
+      const now = Date.now();
+      if (!lockedRef.current && now - lastActivity.current >= ROTATE_INTERVAL) {
+        lastActivity.current = now;
+        const next = (activeRef.current + 1) % totalSections;
+        startTransition("down", next);
+      }
+
+      idleTimer.current = window.setTimeout(tick, ROTATE_INTERVAL);
+    };
+
     const elapsed = Date.now() - lastActivity.current;
     const remaining = Math.max(0, ROTATE_INTERVAL - elapsed);
-
-    idleTimer.current = window.setTimeout(() => {
-      if (rotationPausedRef.current || lockedRef.current) {
-        scheduleAutoRotate();
-        return;
-      }
-      const now = Date.now();
-      if (now - lastActivity.current < ROTATE_INTERVAL) {
-        scheduleAutoRotate();
-        return;
-      }
-      lastActivity.current = now;
-      const next = (activeRef.current + 1) % totalSections;
-      startTransition("down", next);
-      scheduleAutoRotate();
-    }, remaining);
+    idleTimer.current = window.setTimeout(tick, remaining);
   }, [startTransition, totalSections]);
 
   const registerActivity = useCallback(() => {
@@ -208,15 +167,6 @@ export default function Home() {
     setRotationPaused(false);
     registerActivity();
   }, [registerActivity]);
-
-  useEffect(() => {
-    if (active !== quizIndex && pausedByQuiz.current) {
-      pausedByQuiz.current = false;
-      rotationPausedRef.current = false;
-      setRotationPaused(false);
-      registerActivity();
-    }
-  }, [active, quizIndex, registerActivity]);
 
   useEffect(() => {
     const handleSection = (event: Event) => {
@@ -366,22 +316,26 @@ export default function Home() {
       key="momo"
       tone={THREAD_THEMES[0]}
       animate={active === 0 || incoming === 0}
+      content={copy.home.promoMomo}
     />,
     <WarrenBuffett
       key="buffett"
       tone={THREAD_THEMES[1]}
       animate={active === 1 || incoming === 1}
+      content={copy.home.buffett}
     />,
     <CompanyProfile
       key="company"
       tone={THREAD_THEMES[2]}
       animate={active === 2 || incoming === 2}
+      content={copy.home.company}
     />,
     <FinanceQuiz
-      key="quiz"
+      key={`quiz-${copy.home.quiz.title}`}
       tone={THREAD_THEMES[3]}
       animate={active === 3 || incoming === 3}
       rotationPaused={rotationPaused}
+      content={copy.home.quiz}
       onInteract={handleQuizInteract}
       onComplete={handleQuizComplete}
       onExit={handleQuizExit}
@@ -390,6 +344,7 @@ export default function Home() {
       key="agentgame"
       tone={THREAD_THEMES[4]}
       animate={active === 4 || incoming === 4}
+      content={copy.home.agentgame}
     />,
   ];
 
@@ -440,23 +395,83 @@ function SectionShell({
   );
 }
 
+type PromoMomoContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  cta: string;
+};
+
+type WarrenBuffettContent = {
+  eyebrow: string;
+  quote: string;
+  quoteBy: string;
+  paragraphs: string[];
+  essentialsEyebrow: string;
+  essentialsTitle: string;
+  essentials: string[];
+  footer: string;
+};
+
+type CompanyProfileContent = {
+  profileEyebrow: string;
+  name: string;
+  demoDataLabel: string;
+  profileLines: string[];
+  ceoEyebrow: string;
+  ceoName: string;
+  ceoDescription: string;
+  ceoBullets: string[];
+  toolsEyebrow: string;
+  metrics: Array<{ label: string; value: string }>;
+  perEyebrow: string;
+  perDescription: string;
+  perBullets: string[];
+};
+
+type FinanceQuizContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  pausedStatus: string;
+  runningStatus: string;
+  correctLabel: string;
+  reviewLabel: string;
+  resultLabel: string;
+  completedMessage: string;
+  pendingMessage: string;
+  longQuizCta: string;
+  exitCta: string;
+  questions: QuizQuestion[];
+};
+
+type AgentGameContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  cta: string;
+  receiveEyebrow: string;
+  receiveBullets: string[];
+};
+
 function PromoMomo({
   tone,
   animate,
+  content,
 }: {
   tone: ThreadTone;
   animate: boolean;
+  content: PromoMomoContent;
 }) {
   return (
     <SectionShell id="momo" tone={tone} animate={animate} density={30}>
       <div className="premium-panel w-full px-8 py-12 text-center sm:px-12 sm:py-14">
-        <p className="eyebrow">MomoIA</p>
+        <p className="eyebrow">{content.eyebrow}</p>
         <h1 className="mt-4 font-display text-3xl leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-          Essayez MomoIA pour vous constituer votre liste d'investissement.
+          {content.title}
         </h1>
         <p className="mt-5 text-base text-slate-600 sm:text-lg">
-          Un cadre clair pour filtrer les opportunites, ordonner les priorites et
-          construire une methode d'investissement sereine.
+          {content.description}
         </p>
         <div className="mt-8 flex items-center justify-center">
           <Button
@@ -464,7 +479,7 @@ function PromoMomo({
             variant="outline"
             className="cta-soft shadow-none hover:shadow-none"
           >
-            <Link href="/quiz/free">Essayer MomoIA</Link>
+            <Link href="/quiz/free">{content.cta}</Link>
           </Button>
         </div>
       </div>
@@ -475,48 +490,40 @@ function PromoMomo({
 function WarrenBuffett({
   tone,
   animate,
+  content,
 }: {
   tone: ThreadTone;
   animate: boolean;
+  content: WarrenBuffettContent;
 }) {
   return (
     <SectionShell id="buffett" tone={tone} animate={animate} density={24}>
       <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="premium-panel p-8 sm:p-10">
-          <p className="eyebrow">Warren Buffett</p>
+          <p className="eyebrow">{content.eyebrow}</p>
           <blockquote className="mt-6 font-display text-2xl leading-relaxed text-slate-900 sm:text-3xl">
-            "Le prix est ce que vous payez. La valeur est ce que vous obtenez."
+            {content.quote}
           </blockquote>
-          <p className="mt-4 text-sm text-slate-500">- Warren Buffett</p>
+          <p className="mt-4 text-sm text-slate-500">{content.quoteBy}</p>
           <div className="mt-8 space-y-3 text-sm text-slate-600">
-            <p>
-              Investisseur ne en 1930, il a transforme Berkshire Hathaway en
-              un conglomerat de reference et incarne la discipline du temps long.
-            </p>
-            <p>
-              Son approche valorise les entreprises solides, la qualite des
-              dirigeants et la capacite a generer des flux de tresorerie durables.
-            </p>
+            {content.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
         </div>
 
         <div className="premium-panel-soft p-7 sm:p-9">
-          <p className="eyebrow">Reperes essentiels</p>
+          <p className="eyebrow">{content.essentialsEyebrow}</p>
           <h2 className="mt-4 font-display text-2xl text-slate-900">
-            Une vision patiente de l'investissement
+            {content.essentialsTitle}
           </h2>
           <ul className="mt-5 space-y-2 text-sm text-slate-600">
-            <li>Ne en 1930 a Omaha, Nebraska.</li>
-            <li>President de Berkshire Hathaway depuis 1965.</li>
-            <li>Philosophie : acheter des entreprises de qualite a prix raisonnable.</li>
-            <li>Succes notables : GEICO, Coca-Cola, Apple.</li>
-            <li>Horizon long terme et discipline sur les cycles.</li>
+            {content.essentials.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
           <div className="mt-6 soft-divider" />
-          <p className="mt-5 text-sm text-slate-600">
-            "Le temps est l'ami des bonnes entreprises" resume l'esprit de sa
-            methode : patience, rigueur et capitalisation composee.
-          </p>
+          <p className="mt-5 text-sm text-slate-600">{content.footer}</p>
         </div>
       </div>
     </SectionShell>
@@ -526,58 +533,50 @@ function WarrenBuffett({
 function CompanyProfile({
   tone,
   animate,
+  content,
 }: {
   tone: ThreadTone;
   animate: boolean;
+  content: CompanyProfileContent;
 }) {
   return (
     <SectionShell id="company" tone={tone} animate={animate} density={26}>
       <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-6">
           <div className="premium-panel p-8 sm:p-10">
-            <p className="eyebrow">Fiche entreprise</p>
+            <p className="eyebrow">{content.profileEyebrow}</p>
             <h2 className="mt-4 font-display text-3xl text-slate-900">
-              Lumenis Patrimoine SA
+              {content.name}
             </h2>
             <p className="mt-2 text-xs uppercase tracking-[0.28em] text-slate-500">
-              Donnees illustratives
+              {content.demoDataLabel}
             </p>
             <div className="mt-6 space-y-2 text-sm text-slate-600">
-              <p>Specialiste de la gestion d'actifs europeens haut de gamme.</p>
-              <p>Portefeuilles multi-actifs orientes croissance de long terme.</p>
-              <p>Presence internationale avec une base clientele institutionnelle.</p>
+              {content.profileLines.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
             </div>
           </div>
 
           <div className="premium-panel-soft p-7 sm:p-9">
-            <p className="eyebrow">CEO</p>
+            <p className="eyebrow">{content.ceoEyebrow}</p>
             <h3 className="mt-3 font-display text-2xl text-slate-900">
-              Claire Duval
+              {content.ceoName}
             </h3>
-            <p className="mt-3 text-sm text-slate-600">
-              Ancienne directrice des investissements chez un leader europeen,
-              elle pilote Lumenis Patrimoine depuis 2018.
-            </p>
+            <p className="mt-3 text-sm text-slate-600">{content.ceoDescription}</p>
             <ul className="mt-4 space-y-2 text-sm text-slate-600">
-              <li>15 ans d'experience en allocation strategique.</li>
-              <li>Modernisation de la recherche proprietaire.</li>
-              <li>Hausse structurelle des marges depuis sa prise de fonction.</li>
+              {content.ceoBullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
             </ul>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="premium-panel p-7 sm:p-9">
-            <p className="eyebrow">Outils financiers</p>
+            <p className="eyebrow">{content.toolsEyebrow}</p>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {[
-                { label: "Chiffre d'affaires", value: "8,2 Md EUR" },
-                { label: "Resultat net", value: "1,15 Md EUR" },
-                { label: "Endettement", value: "2,4 Md EUR" },
-                { label: "Tresorerie", value: "1,9 Md EUR" },
-                { label: "PER", value: "14,2x" },
-                { label: "Marge nette", value: "14,1%" },
-              ].map((metric) => (
+              {content.metrics.map((metric) => (
                 <div
                   key={metric.label}
                   className="rounded-2xl border border-[rgba(120,105,85,0.18)] bg-white/65 px-4 py-3"
@@ -594,16 +593,12 @@ function CompanyProfile({
           </div>
 
           <div className="premium-panel-soft p-7 sm:p-9">
-            <p className="eyebrow">Comprendre le PER</p>
-            <p className="mt-3 text-sm text-slate-600">
-              Le Price Earnings Ratio compare le prix d'une action au benefice
-              net par action. Il indique combien le marche paie pour 1 euro de
-              resultat.
-            </p>
+            <p className="eyebrow">{content.perEyebrow}</p>
+            <p className="mt-3 text-sm text-slate-600">{content.perDescription}</p>
             <ul className="mt-4 space-y-2 text-sm text-slate-600">
-              <li>PER eleve : attentes de croissance ou valorisation exigeante.</li>
-              <li>PER modere : valorisation plus prudente ou croissance stable.</li>
-              <li>Comparer le PER a celui du secteur pour interpreter le signal.</li>
+              {content.perBullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -616,6 +611,7 @@ function FinanceQuiz({
   tone,
   animate,
   rotationPaused,
+  content,
   onInteract,
   onComplete,
   onExit,
@@ -623,12 +619,13 @@ function FinanceQuiz({
   tone: ThreadTone;
   animate: boolean;
   rotationPaused: boolean;
+  content: FinanceQuizContent;
   onInteract: () => void;
   onComplete: () => void;
   onExit: () => void;
 }) {
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
-    QUIZ_QUESTIONS.map(() => null)
+    content.questions.map(() => null)
   );
 
   const handleSelect = (questionIndex: number, optionIndex: number) => {
@@ -640,9 +637,8 @@ function FinanceQuiz({
     onInteract();
   };
 
-  const score = answers.reduce((total, answer, idx) => {
-    if (total == null) total =0
-    if (answer === QUIZ_QUESTIONS[idx].correct) return total + 1;
+  const score = answers.reduce<number>((total, answer, idx) => {
+    if (answer === content.questions[idx]?.correct) return total + 1;
     return total;
   }, 0);
 
@@ -663,21 +659,21 @@ function FinanceQuiz({
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="eyebrow">Quiz financier</p>
+            <p className="eyebrow">{content.eyebrow}</p>
             <h2 className="mt-3 font-display text-3xl text-slate-900">
-              Testez vos fondamentaux
+              {content.title}
             </h2>
             <p className="mt-2 text-sm text-slate-600">
-              Cinq questions pour verifier vos reflexes d'investisseur.
+              {content.description}
             </p>
           </div>
           <div className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-            {rotationPaused ? "Auto-rotation en pause" : "Rotation automatique"}
+            {rotationPaused ? content.pausedStatus : content.runningStatus}
           </div>
         </div>
 
         <div className="space-y-6">
-          {QUIZ_QUESTIONS.map((question, questionIndex) => {
+          {content.questions.map((question, questionIndex) => {
             const selected = answers[questionIndex];
             return (
               <div key={question.prompt} className="space-y-3">
@@ -707,7 +703,11 @@ function FinanceQuiz({
                         <span>{option}</span>
                         {isAnswered ? (
                           <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                            {isCorrect ? "Correct" : isSelected ? "A revoir" : ""}
+                            {isCorrect
+                              ? content.correctLabel
+                              : isSelected
+                                ? content.reviewLabel
+                                : ""}
                           </span>
                         ) : null}
                       </button>
@@ -727,15 +727,15 @@ function FinanceQuiz({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-              Resultat
+              {content.resultLabel}
             </p>
             <p className="mt-2 text-2xl font-semibold text-slate-900">
-              {score}/{QUIZ_QUESTIONS.length}
+              {score}/{content.questions.length}
             </p>
             <p className="text-sm text-slate-600">
               {completed
-                ? "Quiz termine. Prenez le temps de relire vos choix."
-                : "Selectionnez une reponse par question."}
+                ? content.completedMessage
+                : content.pendingMessage}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -744,7 +744,7 @@ function FinanceQuiz({
               variant="outline"
               className="cta-soft shadow-none hover:shadow-none"
             >
-              <Link href="/quiz/free">Faire un quiz plus long</Link>
+              <Link href="/quiz/free">{content.longQuizCta}</Link>
             </Button>
             {rotationPaused ? (
               <Button
@@ -753,7 +753,7 @@ function FinanceQuiz({
                 className="cta-soft shadow-none hover:shadow-none"
                 onClick={onExit}
               >
-                Quitter le quiz
+                {content.exitCta}
               </Button>
             ) : null}
           </div>
@@ -766,40 +766,36 @@ function FinanceQuiz({
 function AgentGame({
   tone,
   animate,
+  content,
 }: {
   tone: ThreadTone;
   animate: boolean;
+  content: AgentGameContent;
 }) {
   return (
     <SectionShell id="agentgame" tone={tone} animate={animate} density={30}>
       <div className="premium-panel w-full p-8 sm:p-12">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-5">
-            <p className="eyebrow">AgentGame</p>
+            <p className="eyebrow">{content.eyebrow}</p>
             <h2 className="font-display text-3xl text-slate-900 sm:text-4xl">
-              Analysez une entreprise et recevez un retour intelligent sur votre
-              comprehension.
+              {content.title}
             </h2>
-            <p className="text-base text-slate-600">
-              AgentGame consiste a structurer votre analyse, confronter vos
-              hypotheses et recevoir un debrief IA sur votre lecture des
-              fondamentaux.
-            </p>
+            <p className="text-base text-slate-600">{content.description}</p>
             <Button
               asChild
               variant="outline"
               className="cta-soft shadow-none hover:shadow-none"
             >
-              <Link href="/signup">Commencer une analyse</Link>
+              <Link href="/signup">{content.cta}</Link>
             </Button>
           </div>
           <div className="premium-panel-soft p-6 sm:p-8">
-            <p className="eyebrow">Ce que vous recevez</p>
+            <p className="eyebrow">{content.receiveEyebrow}</p>
             <ul className="mt-4 space-y-2 text-sm text-slate-600">
-              <li>Un cadre d'analyse guide, centre sur les sources fiables.</li>
-              <li>Une synthese de vos points forts et zones d'ombre.</li>
-              <li>Un score de comprehension et des pistes d'approfondissement.</li>
-              <li>Une methode reutilisable pour chaque entreprise etudiee.</li>
+              {content.receiveBullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
             </ul>
           </div>
         </div>

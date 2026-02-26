@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "@/components/i18n/LanguageProvider";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import PageShell from "@/components/Base/PageShell";
@@ -8,118 +9,68 @@ import { cn } from "@/lib/utils";
 
 type Stage = "intro" | "steps" | "results" | "analysis";
 
-type Company = {
-  name: string;
-  sector: string;
-  thesis: string;
+type StepOption = {
+  id: string;
+  label: string;
 };
 
-const SECTORS = [
-  "Technologie",
-  "Sante",
-  "Industrie",
-  "Consommation",
-  "Energie",
-  "Finance",
-  "Infrastructures",
-  "Immobilier",
-  "Services",
-];
+type StepConfig = {
+  id: string;
+  title: string;
+  description: string;
+  options: StepOption[];
+  multi: boolean;
+};
 
-const PRIMARY_CRITERIA = [
-  "Rentabilite",
-  "Entreprise familiale",
-  "Diversification geographique",
-  "Croissance reguliere",
-  "Faible endettement",
-  "Avantage concurrentiel durable",
-  "Qualite du management",
-];
-
-const SECONDARY_CRITERIA = [
-  "PER raisonnable",
-  "Forte tresorerie",
-  "Marge elevee",
-  "Historique stable",
-  "Innovation",
-  "Leadership sectoriel",
-  "Dividende regulier",
-];
-
-const COMPANIES: Company[] = [
-  {
-    name: "Entreprise A",
-    sector: "Technologie",
-    thesis: "Plateforme logicielle europeenne a forte recurrence.",
-  },
-  {
-    name: "Entreprise B",
-    sector: "Sante",
-    thesis: "Positionnement defensif avec portefeuille brevete.",
-  },
-  {
-    name: "Entreprise C",
-    sector: "Industrie",
-    thesis: "Leader regional avec visibilite long terme sur les contrats.",
-  },
-  {
-    name: "Entreprise D",
-    sector: "Finance",
-    thesis: "Gestion d'actifs premium orientee patrimoine.",
-  },
-];
+type SaveMessageKey = "needLogin" | "success";
 
 export default function MomoIA() {
   const router = useRouter();
+  const { copy } = useI18n();
+
   const [stage, setStage] = useState<Stage>("intro");
   const [step, setStep] = useState(0);
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [primaryCriteria, setPrimaryCriteria] = useState<string[]>([]);
   const [secondaryCriteria, setSecondaryCriteria] = useState<string[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   const [analysisStep, setAnalysisStep] = useState(0);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    setIsLoggedIn(localStorage.getItem("mainagent:logged-in") === "true");
-  }, []);
-
-  useEffect(() => {
-    if (stage === "analysis" && !selectedCompany) {
-      setStage("results");
-    }
-  }, [selectedCompany, stage]);
-
-  const stepConfig = useMemo(
-    () => [
-      {
-        title: "Choisir un secteur",
-        description:
-          "Selectionnez un secteur pour orienter la recherche de MomoIA.",
-        options: SECTORS,
-        multi: false,
-      },
-      {
-        title: "Choisir des criteres principaux",
-        description:
-          "Selection multiple possible. Ces criteres donnent la direction majeure.",
-        options: PRIMARY_CRITERIA,
-        multi: true,
-      },
-      {
-        title: "Choisir des criteres secondaires",
-        description:
-          "Affinez votre filtre avec des indicateurs complementaires.",
-        options: SECONDARY_CRITERIA,
-        multi: true,
-      },
-    ],
-    []
+  const [saveMessageKey, setSaveMessageKey] = useState<SaveMessageKey | null>(
+    null
   );
+  const [isLoggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("mainagent:logged-in") === "true";
+  });
+
+  const stepConfig = useMemo<StepConfig[]>(() => {
+    return copy.momoia.steps.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      options: item.options,
+      multi: item.multi,
+    }));
+  }, [copy]);
 
   const stepInfo = stepConfig[step];
+
+  const optionLabelById = useMemo<Record<string, string>>(() => {
+    return stepConfig.reduce<Record<string, string>>((acc, currentStep) => {
+      currentStep.options.forEach((option) => {
+        acc[option.id] = option.label;
+      });
+      return acc;
+    }, {});
+  }, [stepConfig]);
+
+  const selectedCompany = useMemo(() => {
+    if (!selectedCompanyId) return null;
+    return (
+      copy.momoia.results.companies.find((company) => company.id === selectedCompanyId) ??
+      null
+    );
+  }, [copy, selectedCompanyId]);
 
   const selectedOptions = useMemo(() => {
     if (step === 0) return selectedSector ? [selectedSector] : [];
@@ -140,9 +91,9 @@ export default function MomoIA() {
   ) => {
     if (list.includes(value)) {
       setter(list.filter((item) => item !== value));
-    } else {
-      setter([...list, value]);
+      return;
     }
+    setter([...list, value]);
   };
 
   const handleOptionSelect = (value: string) => {
@@ -159,95 +110,75 @@ export default function MomoIA() {
 
   const handleNext = () => {
     if (!canContinue) return;
-    if (step < 2) {
+    if (step < stepConfig.length - 1) {
       setStep((prev) => prev + 1);
-    } else {
-      setStage("results");
+      return;
     }
+    setStage("results");
   };
 
   const handleBack = () => {
     if (step > 0) {
       setStep((prev) => prev - 1);
-    } else {
-      setStage("intro");
+      return;
     }
+    setStage("intro");
   };
 
   const handleSave = () => {
     if (!isLoggedIn) {
-      setSaveMessage("Vous devez etre connecte pour sauvegarder vos resultats.");
+      setSaveMessageKey("needLogin");
       window.setTimeout(() => {
         router.push("/login");
       }, 800);
       return;
     }
-    setSaveMessage("Resultats sauvegardes avec succes.");
+    setSaveMessageKey("success");
   };
 
-  const handleCompanyClick = (company: Company) => {
-    setSelectedCompany(company);
+  const handleCompanyClick = (companyId: string) => {
+    setSelectedCompanyId(companyId);
     setAnalysisStep(0);
     setStage("analysis");
   };
 
+  const selectedSectorLabel = selectedSector
+    ? (optionLabelById[selectedSector] ?? selectedSector)
+    : "-";
+
+  const selectedPrimaryLabels = primaryCriteria.length
+    ? primaryCriteria
+        .map((criterionId) => optionLabelById[criterionId] ?? criterionId)
+        .join(", ")
+    : "-";
+
   const analysisPages = useMemo(() => {
     if (!selectedCompany) return [];
-    return [
-      {
-        label: "Presentation globale",
-        title: "Activite et positionnement",
-        body: [
-          `${selectedCompany.name} opere sur le secteur ${selectedCompany.sector} avec une approche orientee qualite et visibilite long terme.`,
-          "Son positionnement premium lui permet de preserver ses marges tout en renforcant la relation client.",
-        ],
-        bullets: [
-          "Activite centree sur des revenus recurrents.",
-          "Positionnement clair sur un segment haut de gamme.",
-          "Capacite a maintenir une croissance reguliere.",
-        ],
-      },
-      {
-        label: "Analyse financiere",
-        title: "Forces et risques",
-        body: [
-          "La structure financiere est equilibree avec une discipline d'investissement continue.",
-          "Les flux de tresorerie permettent de financer l'innovation sans surendettement.",
-        ],
-        bullets: [
-          "Forces : marges stables, generation de cash solide.",
-          "Risques : exposition cyclique moderee, pression concurrentielle ponctuelle.",
-          "Sensibilite limitee aux variations de taux grace a une dette maitrisee.",
-        ],
-      },
-      {
-        label: "Synthese IA",
-        title: "Positionnement strategique",
-        body: [
-          "L'analyse IA confirme une trajectoire coherente avec une vision de long terme.",
-          "Le profil correspond a une strategie patrimoniale prudente et selective.",
-        ],
-        bullets: [
-          "Conclusion : entreprise solide, alignee avec les criteres selectionnes.",
-          "Recommandation : approfondir la gouvernance et la dynamique sectorielle.",
-        ],
-      },
-    ];
-  }, [selectedCompany]);
+
+    const companySectorLabel =
+      optionLabelById[selectedCompany.sectorId] ?? selectedCompany.sectorId;
+
+    return copy.momoia.analysis.pages.map((page) => ({
+      ...page,
+      body: page.body.map((paragraph) =>
+        paragraph
+          .replace("{company}", selectedCompany.name)
+          .replace("{sector}", companySectorLabel)
+      ),
+    }));
+  }, [copy, optionLabelById, selectedCompany]);
 
   return (
     <PageShell align="center" density={28}>
       <div className="w-full space-y-8">
         {stage === "intro" ? (
           <div className="premium-panel w-full px-8 py-12 text-center sm:px-12 sm:py-14">
-            <p className="eyebrow">MomoIA</p>
+            <p className="eyebrow">{copy.momoia.intro.eyebrow}</p>
             <h1 className="mt-4 font-display text-3xl leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-              Construisez votre liste d'investissement avec l'IA.
+              {copy.momoia.intro.title}
             </h1>
             <p className="mt-5 text-base text-slate-600 sm:text-lg">
-              MomoIA vous aide a constituer une liste de suivi personnalisee selon
-              votre secteur cible, vos criteres financiers et votre vision long
-              terme.
+              {copy.momoia.intro.description}
             </p>
             <div className="mt-8 flex items-center justify-center">
               <Button
@@ -257,19 +188,20 @@ export default function MomoIA() {
                 onClick={() => {
                   setStage("steps");
                   setStep(0);
+                  setSaveMessageKey(null);
                 }}
               >
-                Start the experience
+                {copy.momoia.intro.startButton}
               </Button>
             </div>
           </div>
         ) : null}
 
-        {stage === "steps" ? (
+        {stage === "steps" && stepInfo ? (
           <div className="premium-panel w-full px-8 py-10 sm:px-12 sm:py-12">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="eyebrow">Parcours MomoIA</p>
+                <p className="eyebrow">{copy.momoia.steps.eyebrow}</p>
                 <h2 className="mt-3 font-display text-2xl text-slate-900 sm:text-3xl">
                   {stepInfo.title}
                 </h2>
@@ -278,27 +210,24 @@ export default function MomoIA() {
                 </p>
               </div>
               <div className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-                Etape {step + 1}/3
+                {copy.momoia.steps.stepLabel} {step + 1}/{stepConfig.length}
               </div>
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {stepInfo.options.map((option) => {
-                const isSelected = selectedOptions.includes(option);
+                const isSelected = selectedOptions.includes(option.id);
                 return (
                   <button
-                    key={option}
+                    key={option.id}
                     type="button"
-                    className={cn(
-                      "selection-card",
-                      isSelected && "is-selected"
-                    )}
-                    onClick={() => handleOptionSelect(option)}
+                    className={cn("selection-card", isSelected && "is-selected")}
+                    onClick={() => handleOptionSelect(option.id)}
                   >
-                    <span>{option}</span>
+                    <span>{option.label}</span>
                     {isSelected ? (
                       <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                        Selectionne
+                        {copy.momoia.steps.selectedBadge}
                       </span>
                     ) : null}
                   </button>
@@ -313,18 +242,18 @@ export default function MomoIA() {
                 className="cta-soft shadow-none hover:shadow-none"
                 onClick={handleBack}
               >
-                Retour
+                {copy.common.back}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 className={cn(
                   "cta-soft shadow-none hover:shadow-none",
-                  !canContinue && "opacity-50 pointer-events-none"
+                  !canContinue && "pointer-events-none opacity-50"
                 )}
                 onClick={handleNext}
               >
-                Continuer
+                {copy.common.next}
               </Button>
             </div>
           </div>
@@ -334,15 +263,13 @@ export default function MomoIA() {
           <div className="premium-panel w-full px-8 py-10 sm:px-12 sm:py-12">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="eyebrow">Resultat IA (simulation)</p>
+                <p className="eyebrow">{copy.momoia.results.eyebrow}</p>
                 <h2 className="mt-3 font-display text-2xl text-slate-900 sm:text-3xl">
-                  Liste de suivi suggeree
+                  {copy.momoia.results.title}
                 </h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  Secteur : {selectedSector ?? "-"}  -  Criteres principaux :
-                  {primaryCriteria.length
-                    ? ` ${primaryCriteria.join(", ")}`
-                    : " -"}
+                  {copy.momoia.results.sectorLabel}: {selectedSectorLabel} -{" "}
+                  {copy.momoia.results.primaryCriteriaLabel}: {selectedPrimaryLabels}
                 </p>
               </div>
               <Button
@@ -351,34 +278,42 @@ export default function MomoIA() {
                 className="cta-soft shadow-none hover:shadow-none"
                 onClick={handleSave}
               >
-                Save Results
+                {copy.momoia.results.saveButton}
               </Button>
             </div>
-            {saveMessage ? (
-              <p className="mt-3 text-xs text-slate-500">{saveMessage}</p>
+
+            {saveMessageKey ? (
+              <p className="mt-3 text-xs text-slate-500">
+                {copy.momoia.results.saveMessages[saveMessageKey]}
+              </p>
             ) : null}
 
             <div className="mt-6 grid gap-3">
-              {COMPANIES.map((company) => (
-                <button
-                  key={company.name}
-                  type="button"
-                  className="selection-card"
-                  onClick={() => handleCompanyClick(company)}
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {company.name}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {company.sector}  -  {company.thesis}
-                    </p>
-                  </div>
-                  <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                    Voir l'analyse
-                  </span>
-                </button>
-              ))}
+              {copy.momoia.results.companies.map((company) => {
+                const companySectorLabel =
+                  optionLabelById[company.sectorId] ?? company.sectorId;
+
+                return (
+                  <button
+                    key={company.id}
+                    type="button"
+                    className="selection-card"
+                    onClick={() => handleCompanyClick(company.id)}
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {company.name}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {companySectorLabel} - {company.thesis}
+                      </p>
+                    </div>
+                    <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                      {copy.momoia.results.viewAnalysis}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
@@ -389,9 +324,10 @@ export default function MomoIA() {
                 onClick={() => {
                   setStage("steps");
                   setStep(0);
+                  setSaveMessageKey(null);
                 }}
               >
-                Modifier les criteres
+                {copy.momoia.results.editCriteria}
               </Button>
             </div>
           </div>
@@ -401,12 +337,15 @@ export default function MomoIA() {
           <div className="premium-panel w-full px-8 py-10 sm:px-12 sm:py-12">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="eyebrow">Analyse IA</p>
+                <p className="eyebrow">{copy.momoia.analysis.eyebrow}</p>
                 <h2 className="mt-3 font-display text-2xl text-slate-900 sm:text-3xl">
                   {selectedCompany.name}
                 </h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  Secteur {selectedCompany.sector}  -  Vue synthetique en 3 pages.
+                  {copy.momoia.analysis.sectorLabel}{" "}
+                  {optionLabelById[selectedCompany.sectorId] ??
+                    selectedCompany.sectorId}{" "}
+                  - {copy.momoia.analysis.summarySuffix}
                 </p>
               </div>
               <Button
@@ -415,7 +354,7 @@ export default function MomoIA() {
                 className="cta-soft shadow-none hover:shadow-none"
                 onClick={() => setStage("results")}
               >
-                Retour a la liste
+                {copy.momoia.analysis.backToList}
               </Button>
             </div>
 
@@ -425,7 +364,7 @@ export default function MomoIA() {
                 style={{ transform: `translateX(-${analysisStep * 100}%)` }}
               >
                 {analysisPages.map((page) => (
-                  <div key={page.label} className="min-w-full px-6 py-6 sm:px-8">
+                  <div key={page.id} className="min-w-full px-6 py-6 sm:px-8">
                     <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
                       {page.label}
                     </p>
@@ -449,7 +388,7 @@ export default function MomoIA() {
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
               <div className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-                Page {analysisStep + 1}/3
+                {copy.momoia.analysis.pageLabel} {analysisStep + 1}/{analysisPages.length}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -457,26 +396,29 @@ export default function MomoIA() {
                   variant="outline"
                   className={cn(
                     "cta-soft shadow-none hover:shadow-none",
-                    analysisStep === 0 && "opacity-50 pointer-events-none"
+                    analysisStep === 0 && "pointer-events-none opacity-50"
                   )}
                   onClick={() =>
                     setAnalysisStep((prev) => Math.max(0, prev - 1))
                   }
                 >
-                  Precedent
+                  {copy.common.previous}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className={cn(
                     "cta-soft shadow-none hover:shadow-none",
-                    analysisStep === 2 && "opacity-50 pointer-events-none"
+                    analysisStep >= analysisPages.length - 1 &&
+                      "pointer-events-none opacity-50"
                   )}
                   onClick={() =>
-                    setAnalysisStep((prev) => Math.min(2, prev + 1))
+                    setAnalysisStep((prev) =>
+                      Math.min(analysisPages.length - 1, prev + 1)
+                    )
                   }
                 >
-                  Suivant
+                  {copy.common.next}
                 </Button>
               </div>
             </div>
@@ -486,4 +428,3 @@ export default function MomoIA() {
     </PageShell>
   );
 }
-

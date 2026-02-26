@@ -1,63 +1,62 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import PageShell from "@/components/Base/PageShell";
+import { useI18n } from "@/components/i18n/LanguageProvider";
 
 export default function AgentGame() {
+  const { copy } = useI18n();
+
   return (
     <PageShell density={26}>
       <div className="premium-panel w-full p-8 sm:p-12">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-5">
-            <p className="eyebrow">AgentGame</p>
+            <p className="eyebrow">{copy.agentgamePage.eyebrow}</p>
             <h1 className="font-display text-3xl text-slate-900 sm:text-4xl">
-              Analysez une entreprise et recevez un retour IA detaille.
+              {copy.agentgamePage.title}
             </h1>
             <p className="text-base text-slate-600">
-              AgentGame vous guide pour structurer votre analyse financiere,
-              rediger votre these d'investissement et comparer votre lecture aux
-              standards professionnels.
+              {copy.agentgamePage.description}
             </p>
             <Button
               asChild
               variant="outline"
               className="cta-soft shadow-none hover:shadow-none"
             >
-              <Link href="/signup">Start the analysis</Link>
+              <Link href="/signup">{copy.agentgamePage.cta}</Link>
             </Button>
           </div>
 
           <div className="space-y-4">
             <div className="premium-panel-soft p-6">
-              <p className="eyebrow">Votre analyse</p>
+              <p className="eyebrow">{copy.agentgamePage.yourAnalysis.eyebrow}</p>
               <h2 className="mt-3 font-display text-xl text-slate-900">
-                Hypothese de valeur
+                {copy.agentgamePage.yourAnalysis.title}
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                Redigez votre comprehension de l'activite, du modele economique
-                et des moteurs de croissance pour une entreprise cible.
+                {copy.agentgamePage.yourAnalysis.description}
               </p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                <li>Positionnement concurrentiel et avantage durable.</li>
-                <li>Qualite du management et allocation du capital.</li>
-                <li>Scenarios de croissance et risques majeurs.</li>
+                {copy.agentgamePage.yourAnalysis.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
               </ul>
             </div>
 
             <div className="premium-panel-soft p-6">
-              <p className="eyebrow">Retour IA</p>
+              <p className="eyebrow">{copy.agentgamePage.aiFeedback.eyebrow}</p>
               <h2 className="mt-3 font-display text-xl text-slate-900">
-                Synthese et axes d'amelioration
+                {copy.agentgamePage.aiFeedback.title}
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                L'IA fournit un retour structure et met en evidence les angles
-                morts, avec des sources a approfondir.
+                {copy.agentgamePage.aiFeedback.description}
               </p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                <li>Score de coherence strategique.</li>
-                <li>Checklist de validation financiere.</li>
-                <li>Recommandations de lecture sectorielle.</li>
+                {copy.agentgamePage.aiFeedback.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -66,4 +65,3 @@ export default function AgentGame() {
     </PageShell>
   );
 }
-
