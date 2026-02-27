@@ -7,14 +7,15 @@ import AnimatedThreads from "@/components/ui/AnimatedThreads";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { SECTION_EVENT, type SectionId } from "@/lib/section-navigation";
 import { cn } from "@/lib/utils";
-
+//permet de voir si lutilisateur va vers le haut ou vers le bas mais je ne sais pas pourquoi c est utile
+//!!
 type Direction = "down" | "up";
-
+//!!
 type ThreadTone = {
   line: [number, number, number];
   glow: [number, number, number];
 };
-
+//!!
 type SectionShellProps = {
   id: SectionId;
   tone: ThreadTone;
@@ -22,16 +23,16 @@ type SectionShellProps = {
   density?: number;
   animate?: boolean;
 };
-
+//type pour repertorie les param des quizz
 type QuizQuestion = {
   prompt: string;
   options: string[];
   correct: number;
   note: string;
 };
-
+// variable permettant de gerer le temps de rotation entre les pages
 const ROTATE_INTERVAL = 10000;
-
+// permet d avoir l index des pages en type record
 const SECTION_INDEX: Record<SectionId, number> = {
   momo: 0,
   buffett: 1,
@@ -39,7 +40,7 @@ const SECTION_INDEX: Record<SectionId, number> = {
   quiz: 3,
   agentgame: 4,
 };
-
+//!!
 const THREAD_THEMES: ThreadTone[] = [
   { line: [118, 96, 72], glow: [196, 172, 140] },
   { line: [112, 98, 86], glow: [188, 168, 148] },
@@ -47,7 +48,7 @@ const THREAD_THEMES: ThreadTone[] = [
   { line: [110, 96, 78], glow: [190, 170, 145] },
   { line: [120, 98, 74], glow: [200, 178, 146] },
 ];
-
+//fonction principale de tout
 export default function Home() {
   const { copy } = useI18n();
   const [active, setActive] = useState(0);
@@ -69,10 +70,13 @@ export default function Home() {
 
   const totalSections = 5;
   const quizIndex = SECTION_INDEX.quiz;
-
+  //gere les debut de la transition
   const startTransition = useCallback((dir: Direction, target: number) => {
+    //si c est locked ou que la target est current alors avorter la transition
+    //??
     if (lockedRef.current || target === activeRef.current) return;
-
+    //si current est quizzindex et target n est pas quizzindex et il y a une pause par le quizz
+    //alors end de paused by quizz et de la pause de rotation
     if (
       activeRef.current === quizIndex &&
       target !== quizIndex &&
@@ -83,12 +87,14 @@ export default function Home() {
       setRotationPaused(false);
     }
 
+    //!!
     lockedRef.current = true;
     setLocked(true);
     setDirection(dir);
     setIncoming(target);
     setAnimStage("pre");
 
+    //!!
     requestAnimationFrame(() => {
       setAnimStage("run");
       setTimeout(() => {
@@ -101,23 +107,23 @@ export default function Home() {
       }, 950);
     });
   }, [quizIndex]);
-
+  //!!
   useEffect(() => {
     activeRef.current = active;
     lockedRef.current = locked;
     rotationPausedRef.current = rotationPaused;
   }, [active, locked, rotationPaused]);
-
+  //recupere la date
   useEffect(() => {
     lastActivity.current = Date.now();
   }, []);
-
+  //!!
   const scheduleAutoRotate = useCallback(() => {
     if (idleTimer.current) {
       window.clearTimeout(idleTimer.current);
     }
     if (rotationPausedRef.current) return;
-
+    //!!
     const tick = () => {
       if (rotationPausedRef.current) return;
 
@@ -135,12 +141,13 @@ export default function Home() {
     const remaining = Math.max(0, ROTATE_INTERVAL - elapsed);
     idleTimer.current = window.setTimeout(tick, remaining);
   }, [startTransition, totalSections]);
-
+  //gere l auto transition mais je ne sais pas comment cela marche
   const registerActivity = useCallback(() => {
     lastActivity.current = Date.now();
     scheduleAutoRotate();
   }, [scheduleAutoRotate]);
-
+  // si la rotaion est active alors quitter la fonciton sinon mettre a true cette rotation paused by quizz a true et apres je ne sais pas
+  //!!
   const handleQuizInteract = useCallback(() => {
     if (rotationPausedRef.current) return;
     rotationPausedRef.current = true;
@@ -148,7 +155,7 @@ export default function Home() {
     registerActivity();
     setRotationPaused(true);
   }, [registerActivity]);
-
+  //gere la sortie du quizz on fini la puase de rotation la pause de quizz on recuperere la date pour a derniere activite set a false la pause prend la suivante page avec le nombre de page pour pas depasser 
   const handleQuizExit = useCallback(() => {
     rotationPausedRef.current = false;
     lastActivity.current = Date.now();

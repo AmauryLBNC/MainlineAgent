@@ -1,0 +1,12 @@
+critere,influence
+endettement_long_terme,2,endettement_court_terme,2,tresorerie,-2,0,0,0,0,-2
+tresorerie,2,chiffre_d_affaire,2,CAGR_CA,2,marge,2,0,0,2
+resultat_net,1,per,2,0,0,0,0,0,0,-1
+duree_mandat_gerant,2,famille_gouverne_entreprise,2,stabilite_management,2,0,0,0,0,1
+CAGR_endettement_court_terme,2,CAGR_endettement_long_terme,2,endettement_court_terme,2,endettement_long_terme,2,tresorerie,-2,-2
+resultat_net,2,capacite_a_augmenter_prix,2,business_recurrent,2,business_sticky,2,0,0,2
+croissance_organique_vs_acquisition,-2,qualite_resultat,-2,resultat_net,-1,CAGR_endettement_long_terme,2,marge,-1,-2
+business_recurrent,-2,business_sticky,-2,concurrence,2,sensibilite_conjoncture,2,capacite_a_augmenter_prix,-2,-2
+marge,2,CAPEX_CA,-2,qualite_resultat,2,CAGR_tresorerie,2,concurrence,-2,2
+business_recurrent,2,business_sticky,2,capacite_a_augmenter_prix,2,qualite_resultat,2,endettement_long_terme,-2,2
+CAGR_CA,1,CAGR_resultat_net,1,croissance_organique_vs_acquisition,2,CAGR_endettement_long_terme,-1,CAGR_tresorerie,1,2

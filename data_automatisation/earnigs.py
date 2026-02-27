@@ -198,9 +198,14 @@ sp500_tickers = [
 
 
 for l in sp500_tickers:
-    yfinance_ticker=yf.Ticker(l)
-    info=yfinance_ticker.info
-    income_statement=yfinance_ticker.income_stmt
-    balance_sheet=yfinance_ticker.balance_sheet
+    try : 
+        yfinance_ticker=yf.Ticker(l)
+        info=yfinance_ticker.info
+        income_statement=yfinance_ticker.income_stmt
+        balance_sheet=yfinance_ticker.balance_sheet
+        print("a")
+    
+    except Exception as e:
+        print(f"Erreur pour {l} : {e}")
 
     
