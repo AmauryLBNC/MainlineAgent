@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Base/Header";
-import { LanguageProvider } from "@/components/i18n/LanguageProvider";
+import { AppProviders } from "@/components/providers/AppProviders";
 
 const libreBaskerville = Libre_Baskerville({
   variable: "--font-libre-baskerville",
@@ -31,10 +31,10 @@ export default function RootLayout({
       <body
         className={`${libreBaskerville.variable} ${cormorantGaramond.variable} antialiased`}
       >
-        <LanguageProvider>
+        <AppProviders>
           <Header />
           {children}
-        </LanguageProvider>
+        </AppProviders>
       </body>
     </html>
   );

@@ -1,36 +1,185 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MainlineAgent Auth + RBAC
 
-## Getting Started
+This project now includes:
 
-First, run the development server:
+- OAuth-only authentication with `next-auth`
+- Google + GitHub providers
+- JWT sessions with RBAC claims embedded in the token/session
+- PostgreSQL + Prisma 7
+- Advanced RBAC with `Role`, `Permission`, `UserRole`, and `RolePermission`
+- Protected Pages Router routes: `/dashboard`, `/profile`, `/settings`, `/admin`
+- Protected API routes for admin, current user, and AI pedagogy message history
+- Business tables for companies, metrics, criteria, recommendations, likes, and `AnalysisMessage`
+
+## Stack
+
+- Next.js `16.1.6`
+- Pages Router for auth and protected pages
+- Existing `src/app` routes preserved
+- NextAuth.js `4.24.13`
+- Prisma `7.4.1` with PostgreSQL driver adapter
+
+## Environment
+
+Copy `.env.example` to `.env.local` and fill the OAuth credentials:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `DATABASE_URL`
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
+- `ADMIN_EMAILS` optional, comma-separated
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local PostgreSQL
 
-## Learn More
+Start PostgreSQL in Docker:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+docker compose up -d
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Default database credentials from `docker-compose.yml`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- user: `postgres`
+- password: `postgres`
+- database: `mainline_agent`
+- port: `5432`
 
-## Deploy on Vercel
+## Install and Run
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm install
+npm run prisma:generate
+npx prisma migrate dev
+npm run prisma:seed
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Application URLs:
+
+- app: `http://localhost:3000`
+- login: `http://localhost:3000/login`
+- dashboard: `http://localhost:3000/dashboard`
+
+## Prisma Commands
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+npm run prisma:studio
+```
+
+Useful direct commands:
+
+```bash
+npx prisma migrate dev
+npx prisma migrate reset
+npx prisma studio
+```
+
+## OAuth Setup
+
+### Google
+
+Create OAuth credentials in Google Cloud and configure:
+
+- Authorized JavaScript origin: `http://localhost:3000`
+- Authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+
+### GitHub
+
+Create an OAuth App in GitHub and configure:
+
+- Homepage URL: `http://localhost:3000`
+- Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
+
+## RBAC Behavior
+
+- Every new user receives the `USER` role automatically.
+- The first registered user is automatically promoted to `ADMIN`.
+- Any email listed in `ADMIN_EMAILS` is also promoted to `ADMIN`.
+- Authorization checks use permissions, not hardcoded role comparisons.
+- `/admin` requires the `ACCESS_ADMIN` permission.
+
+Default seeded permissions:
+
+- `VIEW_DASHBOARD`
+- `VIEW_PROFILE`
+- `MANAGE_SETTINGS`
+- `CREATE_ANALYSIS_MESSAGE`
+- `READ_ANALYSIS_MESSAGE`
+- `ACCESS_ADMIN`
+- `MANAGE_USERS`
+
+## Implemented Routes
+
+Pages Router pages:
+
+- `/login`
+- `/dashboard`
+- `/profile`
+- `/settings`
+- `/admin`
+- `/403`
+
+API routes:
+
+- `/api/auth/[...nextauth]`
+- `/api/admin/users`
+- `/api/user/me`
+- `/api/analysis/messages`
+
+## Database Coverage
+
+Authentication:
+
+- `User`
+- `Account`
+- `Session`
+- `VerificationToken`
+
+RBAC:
+
+- `Role`
+- `Permission`
+- `UserRole`
+- `RolePermission`
+
+Business:
+
+- `Company`
+- `FinancialMetrics`
+- `ExtraFinancialMetrics`
+- `UserLike`
+- `UserCriteria`
+- `RecommendationHistory`
+- `AnalysisMessage`
+
+## Verification Performed
+
+The following checks were run locally with environment placeholders:
+
+- `npx prisma validate`
+- `npx prisma generate`
+- `npm run build`
+
+## Acceptance Checklist
+
+- `docker compose up -d` supported
+- OAuth-only login page added for Google + GitHub
+- Post-login redirect targets `/dashboard`
+- Protected routes redirect unauthenticated users to `/login`
+- `/admin` is permission-gated
+- Prisma schema and baseline migration added
+- Admin API returns users with roles and permissions
+- `AnalysisMessage` supports authenticated `GET` and `POST`
+- `.env.example` and setup instructions are included

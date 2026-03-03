@@ -33,6 +33,9 @@ const en: TranslationShape = {
       contact: "Contact us",
     },
     login: "Login",
+    dashboard: "Dashboard",
+    admin: "Admin",
+    logout: "Logout",
     getStarted: "Get Started",
   },
 

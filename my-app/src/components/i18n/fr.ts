@@ -17,6 +17,9 @@ const fr = {
       contact: "Contactez-nous",
     },
     login: "Connexion",
+    dashboard: "Dashboard",
+    admin: "Admin",
+    logout: "Deconnexion",
     getStarted: "Commencer",
   },
 

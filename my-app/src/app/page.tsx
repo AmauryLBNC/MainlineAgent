@@ -22,6 +22,7 @@ type SectionShellProps = {
   children: React.ReactNode;
   density?: number;
   animate?: boolean;
+  contentClassName?: string;
 };
 //type pour repertorie les param des quizz
 type QuizQuestion = {
@@ -379,6 +380,7 @@ function SectionShell({
   children,
   density = 26,
   animate = true,
+  contentClassName,
 }: SectionShellProps) {
   return (
     <section
@@ -395,7 +397,12 @@ function SectionShell({
           className="opacity-30"
         />
       ) : null}
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-[1100px] items-center pb-16 pt-28">
+      <div
+        className={cn(
+          "relative z-10 mx-auto flex min-h-screen max-w-[1100px] items-center pb-16 pt-28",
+          contentClassName
+        )}
+      >
         {children}
       </div>
     </section>
@@ -658,13 +665,19 @@ function FinanceQuiz({
   }, [completed, onComplete, rotationPaused]);
 
   return (
-    <SectionShell id="quiz" tone={tone} animate={animate} density={28}>
+    <SectionShell
+      id="quiz"
+      tone={tone}
+      animate={animate}
+      density={28}
+      contentClassName="items-start"
+    >
       <div
-        className="premium-panel w-full space-y-8 px-8 py-10 sm:px-12 sm:py-12"
+        className="premium-panel flex max-h-[calc(100dvh-9rem)] w-full flex-col overflow-hidden px-8 py-10 sm:px-12 sm:py-12"
         onPointerDown={onInteract}
         onFocusCapture={onInteract}
       >
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex shrink-0 flex-wrap items-start justify-between gap-4">
           <div>
             <p className="eyebrow">{content.eyebrow}</p>
             <h2 className="mt-3 font-display text-3xl text-slate-900">
@@ -679,90 +692,100 @@ function FinanceQuiz({
           </div>
         </div>
 
-        <div className="space-y-6">
-          {content.questions.map((question, questionIndex) => {
-            const selected = answers[questionIndex];
-            return (
-              <div key={question.prompt} className="space-y-3">
-                <p className="text-sm font-semibold text-slate-900">
-                  {questionIndex + 1}. {question.prompt}
+        <div className="mt-8 flex min-h-0 flex-1 overflow-hidden">
+          <div
+            className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto overscroll-contain pr-4 -mr-2"
+            data-quiz-scroll="true"
+            onWheel={(event) => event.stopPropagation()}
+            onTouchStart={(event) => event.stopPropagation()}
+            onTouchMove={(event) => event.stopPropagation()}
+          >
+            <div className="space-y-6">
+              {content.questions.map((question, questionIndex) => {
+                const selected = answers[questionIndex];
+                return (
+                  <div key={question.prompt} className="space-y-3">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {questionIndex + 1}. {question.prompt}
+                    </p>
+                    <div className="grid gap-2">
+                      {question.options.map((option, optionIndex) => {
+                        const isSelected = selected === optionIndex;
+                        const isAnswered = selected !== null;
+                        const isCorrect = question.correct === optionIndex;
+                        const showCorrect = isAnswered && isCorrect;
+                        const showWrong = isAnswered && isSelected && !isCorrect;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            className={cn(
+                              "quiz-option",
+                              isSelected && "is-selected",
+                              showCorrect && "is-correct",
+                              showWrong && "is-wrong"
+                            )}
+                            onClick={() => handleSelect(questionIndex, optionIndex)}
+                            aria-pressed={isSelected}
+                          >
+                            <span>{option}</span>
+                            {isAnswered ? (
+                              <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                                {isCorrect
+                                  ? content.correctLabel
+                                  : isSelected
+                                    ? content.reviewLabel
+                                    : ""}
+                              </span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {selected !== null ? (
+                      <p className="text-xs text-slate-500">{question.note}</p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="soft-divider my-8" />
+
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-1">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
+                  {content.resultLabel}
                 </p>
-                <div className="grid gap-2">
-                  {question.options.map((option, optionIndex) => {
-                    const isSelected = selected === optionIndex;
-                    const isAnswered = selected !== null;
-                    const isCorrect = question.correct === optionIndex;
-                    const showCorrect = isAnswered && isCorrect;
-                    const showWrong = isAnswered && isSelected && !isCorrect;
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        className={cn(
-                          "quiz-option",
-                          isSelected && "is-selected",
-                          showCorrect && "is-correct",
-                          showWrong && "is-wrong"
-                        )}
-                        onClick={() => handleSelect(questionIndex, optionIndex)}
-                        aria-pressed={isSelected}
-                      >
-                        <span>{option}</span>
-                        {isAnswered ? (
-                          <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                            {isCorrect
-                              ? content.correctLabel
-                              : isSelected
-                                ? content.reviewLabel
-                                : ""}
-                          </span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-                {selected !== null ? (
-                  <p className="text-xs text-slate-500">{question.note}</p>
+                <p className="mt-2 text-2xl font-semibold text-slate-900">
+                  {score}/{content.questions.length}
+                </p>
+                <p className="text-sm text-slate-600">
+                  {completed
+                    ? content.completedMessage
+                    : content.pendingMessage}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="cta-soft shadow-none hover:shadow-none"
+                >
+                  <Link href="/quiz/free">{content.longQuizCta}</Link>
+                </Button>
+                {rotationPaused ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="cta-soft shadow-none hover:shadow-none"
+                    onClick={onExit}
+                  >
+                    {content.exitCta}
+                  </Button>
                 ) : null}
               </div>
-            );
-          })}
-        </div>
-
-        <div className="soft-divider" />
-
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-              {content.resultLabel}
-            </p>
-            <p className="mt-2 text-2xl font-semibold text-slate-900">
-              {score}/{content.questions.length}
-            </p>
-            <p className="text-sm text-slate-600">
-              {completed
-                ? content.completedMessage
-                : content.pendingMessage}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              asChild
-              variant="outline"
-              className="cta-soft shadow-none hover:shadow-none"
-            >
-              <Link href="/quiz/free">{content.longQuizCta}</Link>
-            </Button>
-            {rotationPaused ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="cta-soft shadow-none hover:shadow-none"
-                onClick={onExit}
-              >
-                {content.exitCta}
-              </Button>
-            ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -810,4 +833,3 @@ function AgentGame({
     </SectionShell>
   );
 }
-
