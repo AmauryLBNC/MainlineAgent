@@ -14,6 +14,28 @@ function getAdminEmails() {
   );
 }
 
+async function waitForUser(userId: string, attempts = 5, delayMs = 75) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    if (user) {
+      return user;
+    }
+
+    if (attempt < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  return null;
+}
+
 export async function ensureRbacSeed() {
   for (const [name, description] of Object.entries(PERMISSION_DESCRIPTIONS)) {
     await prisma.permission.upsert({
@@ -60,6 +82,11 @@ export async function bootstrapUserRoles(
   email?: string | null
 ) {
   await ensureRbacSeed();
+  const user = await waitForUser(userId);
+
+  if (!user) {
+    return;
+  }
 
   const [userRole, adminRole, userCount] = await Promise.all([
     prisma.role.findUniqueOrThrow({ where: { name: "USER" } }),
@@ -82,8 +109,10 @@ export async function bootstrapUserRoles(
   });
 
   const normalizedEmail = email?.trim().toLowerCase();
+  const userEmail = user.email?.trim().toLowerCase();
   const shouldBeAdmin =
     (normalizedEmail ? getAdminEmails().has(normalizedEmail) : false) ||
+    (userEmail ? getAdminEmails().has(userEmail) : false) ||
     userCount === 1;
 
   if (!shouldBeAdmin) {

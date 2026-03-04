@@ -1,61 +1,98 @@
-# MainlineAgent Auth + RBAC
+# MainlineAgent
 
-This project now includes:
+A faire a chaque fois :
+docker compose up -d
 
-- OAuth-only authentication with `next-auth`
-- Google + GitHub providers
-- JWT sessions with RBAC claims embedded in the token/session
+
+Ce projet utilise maintenant :
+
+- Next.js `16` avec `src/app`
+- NextAuth.js avec OAuth uniquement
+- Google + GitHub comme providers
 - PostgreSQL + Prisma 7
-- Advanced RBAC with `Role`, `Permission`, `UserRole`, and `RolePermission`
-- Protected Pages Router routes: `/dashboard`, `/profile`, `/settings`, `/admin`
-- Protected API routes for admin, current user, and AI pedagogy message history
-- Business tables for companies, metrics, criteria, recommendations, likes, and `AnalysisMessage`
+- RBAC avec roles et permissions
+- pages protegees : `/login`, `/dashboard`, `/profile`, `/settings`, `/admin`
 
-## Stack
+## Avant de lancer le programme
 
-- Next.js `16.1.6`
-- Pages Router for auth and protected pages
-- Existing `src/app` routes preserved
-- NextAuth.js `4.24.13`
-- Prisma `7.4.1` with PostgreSQL driver adapter
+Il faut preparer 4 choses :
 
-## Environment
+1. Avoir Docker lance sur la machine
+2. Avoir un fichier `.env.local`
+3. Avoir cree les credentials OAuth Google et GitHub
+4. Avoir initialise la base PostgreSQL
 
-Copy `.env.example` to `.env.local` and fill the OAuth credentials:
+## Variables d'environnement
+
+Copie d'abord le fichier d'exemple :
 
 ```bash
 cp .env.example .env.local
 ```
 
-Required variables:
+Variables obligatoires :
 
-- `DATABASE_URL`
-- `NEXTAUTH_URL`
-- `NEXTAUTH_SECRET`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
-- `ADMIN_EMAILS` optional, comma-separated
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mainline_agent?schema=public"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="replace-with-a-long-random-secret"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+ADMIN_EMAILS="admin@example.com"
+```
 
-## Local PostgreSQL
+## Configuration OAuth
 
-Start PostgreSQL in Docker:
+### Google
+
+Dans Google Cloud :
+
+- cree un OAuth Client ID
+- ajoute `http://localhost:3000` comme origine autorisee
+- ajoute `http://localhost:3000/api/auth/callback/google` comme URI de redirection
+
+### GitHub
+
+Dans GitHub OAuth Apps :
+
+- Homepage URL : `http://localhost:3000`
+- Authorization callback URL : `http://localhost:3000/api/auth/callback/github`
+
+## Lancement local
+
+Demarre d'abord PostgreSQL :
 
 ```bash
 docker compose up -d
 ```
 
-Default database credentials from `docker-compose.yml`:
-
-- user: `postgres`
-- password: `postgres`
-- database: `mainline_agent`
-- port: `5432`
-
-## Install and Run
+Installe ensuite les dependances :
 
 ```bash
+npm install
+```
+
+Genere Prisma, applique la migration et seed les roles/permissions :
+
+```bash
+npm run prisma:generate
+npx prisma migrate dev
+npm run prisma:seed
+```
+
+Lance enfin le projet :
+
+```bash
+npm run dev
+```
+
+## Ordre recommande complet
+
+```bash
+cp .env.example .env.local
+docker compose up -d
 npm install
 npm run prisma:generate
 npx prisma migrate dev
@@ -63,123 +100,52 @@ npm run prisma:seed
 npm run dev
 ```
 
-Application URLs:
+## Verification apres demarrage
 
-- app: `http://localhost:3000`
-- login: `http://localhost:3000/login`
-- dashboard: `http://localhost:3000/dashboard`
+1. Ouvrir `http://localhost:3000/login`
+2. Verifier que les boutons Google et GitHub apparaissent
+3. Se connecter avec un compte OAuth
+4. Verifier la redirection vers `/dashboard`
+5. Verifier que `/profile` et `/settings` fonctionnent
+6. Verifier que `/admin` est refuse sans permission
+7. Verifier que `/admin` fonctionne avec un compte admin
 
-## Prisma Commands
+## Comportement RBAC
+
+- tout nouvel utilisateur recoit `USER`
+- le premier utilisateur peut devenir `ADMIN`
+- tout email present dans `ADMIN_EMAILS` peut devenir `ADMIN`
+- l'acces admin repose sur la permission `ACCESS_ADMIN`
+
+## Commandes utiles
 
 ```bash
 npm run prisma:generate
 npm run prisma:migrate
 npm run prisma:seed
 npm run prisma:studio
+npm run build
+npm run lint
 ```
 
-Useful direct commands:
+## Fichiers importants
 
-```bash
-npx prisma migrate dev
-npx prisma migrate reset
-npx prisma studio
-```
+- auth NextAuth : [src/lib/auth/options.ts](/home/amaury/Documents/Github/MainlineAgent/my-app/src/lib/auth/options.ts)
+- guards auth : [src/lib/auth/session.ts](/home/amaury/Documents/Github/MainlineAgent/my-app/src/lib/auth/session.ts)
+- middleware : [middleware.ts](/home/amaury/Documents/Github/MainlineAgent/my-app/middleware.ts)
+- schema Prisma : [prisma/schema.prisma](/home/amaury/Documents/Github/MainlineAgent/my-app/prisma/schema.prisma)
+- login UI : [src/app/login/page.tsx](/home/amaury/Documents/Github/MainlineAgent/my-app/src/app/login/page.tsx)
+- prompt d'explication : [docs/login-auth-prompt.md](/home/amaury/Documents/Github/MainlineAgent/my-app/docs/login-auth-prompt.md)
 
-## OAuth Setup
+## Prompt pret a l'emploi
 
-### Google
+Un prompt dedie est disponible ici :
 
-Create OAuth credentials in Google Cloud and configure:
+- [docs/login-auth-prompt.md](/home/amaury/Documents/Github/MainlineAgent/my-app/docs/login-auth-prompt.md)
 
-- Authorized JavaScript origin: `http://localhost:3000`
-- Authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+Il sert a demander a une IA :
 
-### GitHub
-
-Create an OAuth App in GitHub and configure:
-
-- Homepage URL: `http://localhost:3000`
-- Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
-
-## RBAC Behavior
-
-- Every new user receives the `USER` role automatically.
-- The first registered user is automatically promoted to `ADMIN`.
-- Any email listed in `ADMIN_EMAILS` is also promoted to `ADMIN`.
-- Authorization checks use permissions, not hardcoded role comparisons.
-- `/admin` requires the `ACCESS_ADMIN` permission.
-
-Default seeded permissions:
-
-- `VIEW_DASHBOARD`
-- `VIEW_PROFILE`
-- `MANAGE_SETTINGS`
-- `CREATE_ANALYSIS_MESSAGE`
-- `READ_ANALYSIS_MESSAGE`
-- `ACCESS_ADMIN`
-- `MANAGE_USERS`
-
-## Implemented Routes
-
-Pages Router pages:
-
-- `/login`
-- `/dashboard`
-- `/profile`
-- `/settings`
-- `/admin`
-- `/403`
-
-API routes:
-
-- `/api/auth/[...nextauth]`
-- `/api/admin/users`
-- `/api/user/me`
-- `/api/analysis/messages`
-
-## Database Coverage
-
-Authentication:
-
-- `User`
-- `Account`
-- `Session`
-- `VerificationToken`
-
-RBAC:
-
-- `Role`
-- `Permission`
-- `UserRole`
-- `RolePermission`
-
-Business:
-
-- `Company`
-- `FinancialMetrics`
-- `ExtraFinancialMetrics`
-- `UserLike`
-- `UserCriteria`
-- `RecommendationHistory`
-- `AnalysisMessage`
-
-## Verification Performed
-
-The following checks were run locally with environment placeholders:
-
-- `npx prisma validate`
-- `npx prisma generate`
-- `npm run build`
-
-## Acceptance Checklist
-
-- `docker compose up -d` supported
-- OAuth-only login page added for Google + GitHub
-- Post-login redirect targets `/dashboard`
-- Protected routes redirect unauthenticated users to `/login`
-- `/admin` is permission-gated
-- Prisma schema and baseline migration added
-- Admin API returns users with roles and permissions
-- `AnalysisMessage` supports authenticated `GET` and `POST`
-- `.env.example` and setup instructions are included
+- comment le login fonctionne
+- comment brancher Google et GitHub
+- quelles etapes faire avant que le systeme marche
+- comment verifier que la configuration est correcte

@@ -1,13 +1,14 @@
 "use client";
 
-import { useI18n } from "@/components/i18n/LanguageProvider";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useI18n } from "@/components/i18n/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import PageShell from "@/components/Base/PageShell";
 import { cn } from "@/lib/utils";
 
-type Stage = "intro" | "steps" | "results" | "analysis";
+type Stage = "intro" | "steps" | "results";
 
 type StepOption = {
   id: string;
@@ -24,24 +25,74 @@ type StepConfig = {
 
 type SaveMessageKey = "needLogin" | "success";
 
+type CompanyResult = {
+  id: number;
+  slug: string;
+  name: string;
+  ticker: string | null;
+  sector: string;
+  country: string | null;
+  website: string | null;
+  thesis: {
+    fr: string;
+    en: string;
+  };
+  latestMetrics: {
+    peRatio: number | null;
+    netMargin: number | null;
+  } | null;
+};
+
 export default function MomoIA() {
   const router = useRouter();
-  const { copy } = useI18n();
+  const { status } = useSession();
+  const { copy, language } = useI18n();
 
   const [stage, setStage] = useState<Stage>("intro");
   const [step, setStep] = useState(0);
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [primaryCriteria, setPrimaryCriteria] = useState<string[]>([]);
   const [secondaryCriteria, setSecondaryCriteria] = useState<string[]>([]);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
-  const [analysisStep, setAnalysisStep] = useState(0);
   const [saveMessageKey, setSaveMessageKey] = useState<SaveMessageKey | null>(
     null
   );
-  const [isLoggedIn] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("mainagent:logged-in") === "true";
-  });
+  const [companies, setCompanies] = useState<CompanyResult[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCompanies() {
+      try {
+        const response = await fetch("/api/companies");
+        const payload = (await response.json()) as {
+          companies?: CompanyResult[];
+        };
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCompanies(Array.isArray(payload.companies) ? payload.companies : []);
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+
+        setCompanies([]);
+      } finally {
+        if (isMounted) {
+          setIsLoadingCompanies(false);
+        }
+      }
+    }
+
+    loadCompanies();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const stepConfig = useMemo<StepConfig[]>(() => {
     return copy.momoia.steps.items.map((item) => ({
@@ -64,14 +115,6 @@ export default function MomoIA() {
     }, {});
   }, [stepConfig]);
 
-  const selectedCompany = useMemo(() => {
-    if (!selectedCompanyId) return null;
-    return (
-      copy.momoia.results.companies.find((company) => company.id === selectedCompanyId) ??
-      null
-    );
-  }, [copy, selectedCompanyId]);
-
   const selectedOptions = useMemo(() => {
     if (step === 0) return selectedSector ? [selectedSector] : [];
     if (step === 1) return primaryCriteria;
@@ -84,6 +127,15 @@ export default function MomoIA() {
     return secondaryCriteria.length > 0;
   }, [primaryCriteria.length, secondaryCriteria.length, selectedSector, step]);
 
+  const visibleCompanies = useMemo(() => {
+    if (!selectedSector) {
+      return companies;
+    }
+
+    const filtered = companies.filter((company) => company.sector === selectedSector);
+    return filtered.length > 0 ? filtered : companies;
+  }, [companies, selectedSector]);
+
   const toggleMulti = (
     value: string,
     list: string[],
@@ -93,6 +145,7 @@ export default function MomoIA() {
       setter(list.filter((item) => item !== value));
       return;
     }
+
     setter([...list, value]);
   };
 
@@ -101,19 +154,23 @@ export default function MomoIA() {
       setSelectedSector(value);
       return;
     }
+
     if (step === 1) {
       toggleMulti(value, primaryCriteria, setPrimaryCriteria);
       return;
     }
+
     toggleMulti(value, secondaryCriteria, setSecondaryCriteria);
   };
 
   const handleNext = () => {
     if (!canContinue) return;
+
     if (step < stepConfig.length - 1) {
       setStep((prev) => prev + 1);
       return;
     }
+
     setStage("results");
   };
 
@@ -122,24 +179,20 @@ export default function MomoIA() {
       setStep((prev) => prev - 1);
       return;
     }
+
     setStage("intro");
   };
 
   const handleSave = () => {
-    if (!isLoggedIn) {
+    if (status !== "authenticated") {
       setSaveMessageKey("needLogin");
       window.setTimeout(() => {
-        router.push("/login");
+        router.push("/login?callbackUrl=/momoia");
       }, 800);
       return;
     }
-    setSaveMessageKey("success");
-  };
 
-  const handleCompanyClick = (companyId: string) => {
-    setSelectedCompanyId(companyId);
-    setAnalysisStep(0);
-    setStage("analysis");
+    setSaveMessageKey("success");
   };
 
   const selectedSectorLabel = selectedSector
@@ -151,22 +204,6 @@ export default function MomoIA() {
         .map((criterionId) => optionLabelById[criterionId] ?? criterionId)
         .join(", ")
     : "-";
-
-  const analysisPages = useMemo(() => {
-    if (!selectedCompany) return [];
-
-    const companySectorLabel =
-      optionLabelById[selectedCompany.sectorId] ?? selectedCompany.sectorId;
-
-    return copy.momoia.analysis.pages.map((page) => ({
-      ...page,
-      body: page.body.map((paragraph) =>
-        paragraph
-          .replace("{company}", selectedCompany.name)
-          .replace("{sector}", companySectorLabel)
-      ),
-    }));
-  }, [copy, optionLabelById, selectedCompany]);
 
   return (
     <PageShell align="center" density={28}>
@@ -289,31 +326,65 @@ export default function MomoIA() {
             ) : null}
 
             <div className="mt-6 grid gap-3">
-              {copy.momoia.results.companies.map((company) => {
-                const companySectorLabel =
-                  optionLabelById[company.sectorId] ?? company.sectorId;
+              {isLoadingCompanies ? (
+                <div className="rounded-3xl border border-[rgba(120,105,85,0.18)] bg-white/65 px-6 py-5 text-sm text-slate-500">
+                  {copy.momoia.results.loadingCompanies}
+                </div>
+              ) : null}
 
-                return (
-                  <button
-                    key={company.id}
-                    type="button"
-                    className="selection-card"
-                    onClick={() => handleCompanyClick(company.id)}
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {company.name}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {companySectorLabel} - {company.thesis}
-                      </p>
-                    </div>
-                    <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                      {copy.momoia.results.viewAnalysis}
-                    </span>
-                  </button>
-                );
-              })}
+              {!isLoadingCompanies && visibleCompanies.length === 0 ? (
+                <div className="rounded-3xl border border-[rgba(120,105,85,0.18)] bg-white/65 px-6 py-5 text-sm text-slate-500">
+                  {copy.momoia.results.emptyResults}
+                </div>
+              ) : null}
+
+              {!isLoadingCompanies
+                ? visibleCompanies.map((company) => {
+                    const companySectorLabel =
+                      optionLabelById[company.sector] ?? company.sector;
+                    const thesis =
+                      language === "fr"
+                        ? company.thesis.fr
+                        : company.thesis.en;
+
+                    return (
+                      <button
+                        key={company.slug}
+                        type="button"
+                        className="selection-card"
+                        onClick={() =>
+                          router.push(`/momoia/entreprises/${company.slug}`)
+                        }
+                      >
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-slate-900">
+                            {company.name}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {companySectorLabel} - {thesis}
+                          </p>
+                          {company.latestMetrics ? (
+                            <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-slate-400">
+                              {company.latestMetrics.peRatio !== null
+                                ? `P/E ${company.latestMetrics.peRatio.toFixed(1)}x`
+                                : ""}
+                              {company.latestMetrics.peRatio !== null &&
+                              company.latestMetrics.netMargin !== null
+                                ? " - "
+                                : ""}
+                              {company.latestMetrics.netMargin !== null
+                                ? `Margin ${company.latestMetrics.netMargin.toFixed(1)}%`
+                                : ""}
+                            </p>
+                          ) : null}
+                        </div>
+                        <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                          {copy.momoia.results.viewCompanyPage}
+                        </span>
+                      </button>
+                    );
+                  })
+                : null}
             </div>
 
             <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
@@ -329,98 +400,6 @@ export default function MomoIA() {
               >
                 {copy.momoia.results.editCriteria}
               </Button>
-            </div>
-          </div>
-        ) : null}
-
-        {stage === "analysis" && selectedCompany ? (
-          <div className="premium-panel w-full px-8 py-10 sm:px-12 sm:py-12">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="eyebrow">{copy.momoia.analysis.eyebrow}</p>
-                <h2 className="mt-3 font-display text-2xl text-slate-900 sm:text-3xl">
-                  {selectedCompany.name}
-                </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  {copy.momoia.analysis.sectorLabel}{" "}
-                  {optionLabelById[selectedCompany.sectorId] ??
-                    selectedCompany.sectorId}{" "}
-                  - {copy.momoia.analysis.summarySuffix}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="cta-soft shadow-none hover:shadow-none"
-                onClick={() => setStage("results")}
-              >
-                {copy.momoia.analysis.backToList}
-              </Button>
-            </div>
-
-            <div className="mt-6 overflow-hidden rounded-3xl border border-[rgba(120,105,85,0.18)] bg-white/65">
-              <div
-                className="flex transition-transform duration-700 ease-[cubic-bezier(0.22,0.7,0.26,1)]"
-                style={{ transform: `translateX(-${analysisStep * 100}%)` }}
-              >
-                {analysisPages.map((page) => (
-                  <div key={page.id} className="min-w-full px-6 py-6 sm:px-8">
-                    <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-                      {page.label}
-                    </p>
-                    <h3 className="mt-3 font-display text-2xl text-slate-900">
-                      {page.title}
-                    </h3>
-                    <div className="mt-4 space-y-3 text-sm text-slate-600">
-                      {page.body.map((paragraph) => (
-                        <p key={paragraph}>{paragraph}</p>
-                      ))}
-                    </div>
-                    <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                      {page.bullets.map((bullet) => (
-                        <li key={bullet}>- {bullet}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-              <div className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-                {copy.momoia.analysis.pageLabel} {analysisStep + 1}/{analysisPages.length}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={cn(
-                    "cta-soft shadow-none hover:shadow-none",
-                    analysisStep === 0 && "pointer-events-none opacity-50"
-                  )}
-                  onClick={() =>
-                    setAnalysisStep((prev) => Math.max(0, prev - 1))
-                  }
-                >
-                  {copy.common.previous}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={cn(
-                    "cta-soft shadow-none hover:shadow-none",
-                    analysisStep >= analysisPages.length - 1 &&
-                      "pointer-events-none opacity-50"
-                  )}
-                  onClick={() =>
-                    setAnalysisStep((prev) =>
-                      Math.min(analysisPages.length - 1, prev + 1)
-                    )
-                  }
-                >
-                  {copy.common.next}
-                </Button>
-              </div>
             </div>
           </div>
         ) : null}

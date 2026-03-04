@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 
 type LoginActionsProps = {
   callbackUrl: string;
+  signInWith: string;
+  oauthLabel: string;
 };
 
 const providerIcons: Record<string, LucideIcon> = {
@@ -18,7 +20,11 @@ const providers = [
   { id: "github", name: "GitHub" },
 ];
 
-export function LoginActions({ callbackUrl }: LoginActionsProps) {
+export function LoginActions({
+  callbackUrl,
+  signInWith,
+  oauthLabel,
+}: LoginActionsProps) {
   return (
     <div className="mt-8 flex flex-col gap-3">
       {providers.map((provider) => {
@@ -38,10 +44,10 @@ export function LoginActions({ callbackUrl }: LoginActionsProps) {
           >
             <span className="flex items-center gap-3">
               <Icon className="size-4" />
-              Sign in with {provider.name}
+              {signInWith} {provider.name}
             </span>
             <span className="text-xs uppercase tracking-[0.3em] text-primary-foreground/70">
-              OAuth
+              {oauthLabel}
             </span>
           </Button>
         );

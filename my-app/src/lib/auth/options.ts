@@ -17,6 +17,20 @@ function requiredEnv(name: string) {
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error(code, metadata) {
+      console.error("[next-auth][error]", code, metadata);
+    },
+    warn(code) {
+      console.warn("[next-auth][warn]", code);
+    },
+    debug(code, metadata) {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("[next-auth][debug]", code, metadata);
+      }
+    },
+  },
   session: {
     strategy: "jwt",
   },
@@ -28,10 +42,12 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: requiredEnv("GOOGLE_CLIENT_ID"),
       clientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
+      allowDangerousEmailAccountLinking: true,
     }),
     GitHubProvider({
       clientId: requiredEnv("GITHUB_CLIENT_ID"),
       clientSecret: requiredEnv("GITHUB_CLIENT_SECRET"),
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   events: {

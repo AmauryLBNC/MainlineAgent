@@ -254,7 +254,11 @@ const fr = {
       primaryCriteriaLabel: "Criteres principaux",
       saveButton: "Sauvegarder les resultats",
       viewAnalysis: "Voir l'analyse",
+      viewCompanyPage: "Voir la fiche entreprise",
       editCriteria: "Modifier les criteres",
+      loadingCompanies: "Chargement des entreprises en cours...",
+      emptyResults:
+        "Aucune entreprise n'est disponible pour le moment dans la base.",
       saveMessages: {
         needLogin: "Vous devez etre connecte pour sauvegarder vos resultats.",
         success: "Resultats sauvegardes avec succes.",
@@ -286,55 +290,37 @@ const fr = {
         },
       ],
     },
-    analysis: {
-      eyebrow: "Analyse IA",
-      sectorLabel: "Secteur",
-      summarySuffix: "Vue synthetique en 3 pages.",
-      backToList: "Retour a la liste",
-      pageLabel: "Page",
-      pages: [
-        {
-          id: "overview",
-          label: "Presentation globale",
-          title: "Activite et positionnement",
-          body: [
-            "{company} opere sur le secteur {sector} avec une approche orientee qualite et visibilite long terme.",
-            "Son positionnement premium lui permet de preserver ses marges tout en renforcant la relation client.",
-          ],
-          bullets: [
-            "Activite centree sur des revenus recurrents.",
-            "Positionnement clair sur un segment haut de gamme.",
-            "Capacite a maintenir une croissance reguliere.",
-          ],
-        },
-        {
-          id: "financials",
-          label: "Analyse financiere",
-          title: "Forces et risques",
-          body: [
-            "La structure financiere est equilibree avec une discipline d'investissement continue.",
-            "Les flux de tresorerie permettent de financer l'innovation sans surendettement.",
-          ],
-          bullets: [
-            "Forces : marges stables, generation de cash solide.",
-            "Risques : exposition cyclique moderee, pression concurrentielle ponctuelle.",
-            "Sensibilite limitee aux variations de taux grace a une dette maitrisee.",
-          ],
-        },
-        {
-          id: "summary",
-          label: "Synthese IA",
-          title: "Positionnement strategique",
-          body: [
-            "L'analyse IA confirme une trajectoire coherente avec une vision de long terme.",
-            "Le profil correspond a une strategie patrimoniale prudente et selective.",
-          ],
-          bullets: [
-            "Conclusion : entreprise solide, alignee avec les criteres selectionnes.",
-            "Recommandation : approfondir la gouvernance et la dynamique sectorielle.",
-          ],
-        },
-      ],
+    companyPage: {
+      eyebrow: "Fiche entreprise",
+      backToMomoia: "Retour a MomoIA",
+      sector: "Secteur",
+      ticker: "Ticker",
+      country: "Pays",
+      website: "Visiter le site de l'entreprise",
+      likes: "Likes",
+      addToLikes: "Ajouter a mes likes",
+      removeFromLikes: "Retirer de mes likes",
+      loginToLike: "Se connecter pour liker",
+      presentationEyebrow: "Presentation",
+      presentationTitle: "Activite et positionnement",
+      investmentCase: "Pourquoi cette entreprise ressort",
+      leadershipEyebrow: "Direction",
+      financialsEyebrow: "Chiffres cles",
+      financialsTitle: "Vue financiere recente",
+      strengthsEyebrow: "Points forts",
+      strengthsTitle: "Ce qui joue en sa faveur",
+      weaknessesEyebrow: "Points faibles",
+      weaknessesTitle: "Points de vigilance",
+      metrics: {
+        asOf: "Donnees au",
+        revenue: "Chiffre d'affaires",
+        netIncome: "Resultat net",
+        debt: "Dette",
+        freeCashFlow: "Free cash-flow",
+        ebitda: "EBITDA",
+        peRatio: "PER",
+        netMargin: "Marge nette",
+      },
     },
   },
 
@@ -369,6 +355,91 @@ const fr = {
     submitButton: "Envoyer",
     email: "contact@momoia.com",
     successMessage: "Merci, votre message a bien ete envoye.",
+  },
+
+  authPages: {
+    login: {
+      eyebrow: "Acces OAuth",
+      title: "Connectez-vous avec Google ou GitHub.",
+      description:
+        "Cet espace utilise uniquement l'authentification OAuth. Aucun mot de passe n'est stocke localement. Apres connexion, vous etes redirige vers",
+      authFailed: "Echec de l'authentification :",
+      oauthCallbackHelp:
+        "Google ou GitHub a bien renvoye vers l'application, mais le traitement du callback a echoue. Verifiez NEXTAUTH_URL, l'URL de callback du provider, le client secret OAuth et les logs du serveur.",
+      accessModelEyebrow: "Modele d'acces",
+      defaultRole:
+        "Les nouveaux utilisateurs recoivent par defaut le role USER.",
+      autoCreateAccount:
+        "Lors de votre premiere connexion OAuth, le compte applicatif est cree automatiquement en base de donnees.",
+      adminPermission:
+        "L'acces admin depend de la permission ACCESS_ADMIN, pas d'un simple test sur le role.",
+      bootstrapAdmin:
+        "Le premier utilisateur inscrit, ou toute adresse presente dans ADMIN_EMAILS, devient administrateur.",
+      backHome: "Retour a l'accueil",
+      signInWith: "Se connecter avec",
+      oauthLabel: "OAuth",
+    },
+    dashboard: {
+      eyebrow: "Dashboard",
+      welcomeBack: "Heureux de vous revoir",
+      description:
+        "Votre session repose sur JWT, tandis que les roles et permissions sont charges depuis PostgreSQL via Prisma au moment de la connexion.",
+      email: "Email",
+      noEmail: "Aucun email disponible",
+      roles: "Roles",
+      permissions: "Permissions",
+      sessionPayload: "Contenu de la session",
+      quickLinks: "Liens rapides",
+      profile: "Profil",
+      settings: "Parametres",
+      admin: "Admin",
+    },
+    profile: {
+      eyebrow: "Profil",
+      title: "Resume du compte",
+      description:
+        "L'identite OAuth provient des comptes NextAuth, tandis que les droits effectifs derivent des associations roles-permissions.",
+      identity: "Identite",
+      effectiveAuthorization: "Droits effectifs",
+      name: "Nom",
+      email: "Email",
+      connectedProviders: "Fournisseurs connectes",
+      notProvided: "Non renseigne",
+      noProviderMetadata: "Aucune metadonnee de fournisseur trouvee",
+      roles: "Roles",
+      permissions: "Permissions",
+    },
+    settings: {
+      eyebrow: "Parametres",
+      title: "Espace de preferences",
+      descriptionBefore:
+        "Cette page est protegee et prete a accueillir les preferences utilisateur, les criteres ou les notifications. Votre compte dispose actuellement de",
+      descriptionAfter: "permissions.",
+      nextActions: "Prochaines actions logiques",
+      savePreferences: "Sauvegarder les preferences",
+      manageCriteria: "Gerer les presets de criteres",
+    },
+    admin: {
+      eyebrow: "Admin",
+      title: "Annuaire utilisateurs et attribution des roles",
+      descriptionBefore: "Cette page est protegee par la permission",
+      descriptionAfter:
+        "La meme permission est verifiee par le middleware et l'endpoint /api/admin/users.",
+      user: "Utilisateur",
+      unnamedUser: "Utilisateur sans nom",
+      email: "Email",
+      noEmail: "Aucun email",
+      roles: "Roles",
+      permissions: "Permissions",
+      created: "Cree le",
+    },
+    accessDenied: {
+      title: "Acces refuse",
+      description:
+        "Votre compte est authentifie, mais il ne dispose pas de la permission requise pour acceder a cette zone.",
+      backToDashboard: "Retour au dashboard",
+      returnHome: "Retour a l'accueil",
+    },
   },
 
   agentgamePage: {

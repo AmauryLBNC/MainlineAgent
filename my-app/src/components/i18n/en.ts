@@ -265,7 +265,10 @@ const en: TranslationShape = {
       primaryCriteriaLabel: "Primary criteria",
       saveButton: "Save results",
       viewAnalysis: "View analysis",
+      viewCompanyPage: "Open company page",
       editCriteria: "Edit criteria",
+      loadingCompanies: "Loading companies...",
+      emptyResults: "No companies are currently available in the database.",
       saveMessages: {
         needLogin: "You must be logged in to save your results.",
         success: "Results saved successfully.",
@@ -297,55 +300,37 @@ const en: TranslationShape = {
         },
       ],
     },
-    analysis: {
-      eyebrow: "AI analysis",
-      sectorLabel: "Sector",
-      summarySuffix: "3-page summary view.",
-      backToList: "Back to list",
-      pageLabel: "Page",
-      pages: [
-        {
-          id: "overview",
-          label: "Global overview",
-          title: "Business and positioning",
-          body: [
-            "{company} operates in the {sector} sector with a quality-focused and long-term visibility approach.",
-            "Its premium positioning helps preserve margins while strengthening client relationships.",
-          ],
-          bullets: [
-            "Business centered on recurring revenue streams.",
-            "Clear positioning on a high-end segment.",
-            "Ability to maintain steady growth.",
-          ],
-        },
-        {
-          id: "financials",
-          label: "Financial analysis",
-          title: "Strengths and risks",
-          body: [
-            "The financial structure is balanced with consistent capital discipline.",
-            "Cash flows fund innovation without excessive leverage.",
-          ],
-          bullets: [
-            "Strengths: stable margins, strong cash generation.",
-            "Risks: moderate cyclical exposure, occasional competitive pressure.",
-            "Limited rate sensitivity thanks to controlled debt.",
-          ],
-        },
-        {
-          id: "summary",
-          label: "AI summary",
-          title: "Strategic positioning",
-          body: [
-            "The AI analysis confirms a coherent trajectory aligned with long-term vision.",
-            "The profile matches a prudent and selective wealth strategy.",
-          ],
-          bullets: [
-            "Conclusion: solid company aligned with selected criteria.",
-            "Recommendation: deepen governance and sector momentum analysis.",
-          ],
-        },
-      ],
+    companyPage: {
+      eyebrow: "Company page",
+      backToMomoia: "Back to MomoIA",
+      sector: "Sector",
+      ticker: "Ticker",
+      country: "Country",
+      website: "Visit company website",
+      likes: "Likes",
+      addToLikes: "Add to my likes",
+      removeFromLikes: "Remove from my likes",
+      loginToLike: "Sign in to like",
+      presentationEyebrow: "Overview",
+      presentationTitle: "Business and positioning",
+      investmentCase: "Why this company stands out",
+      leadershipEyebrow: "Leadership",
+      financialsEyebrow: "Key figures",
+      financialsTitle: "Recent financial snapshot",
+      strengthsEyebrow: "Strengths",
+      strengthsTitle: "What works in its favor",
+      weaknessesEyebrow: "Weaknesses",
+      weaknessesTitle: "Points to monitor",
+      metrics: {
+        asOf: "Data as of",
+        revenue: "Revenue",
+        netIncome: "Net income",
+        debt: "Debt",
+        freeCashFlow: "Free cash flow",
+        ebitda: "EBITDA",
+        peRatio: "P/E",
+        netMargin: "Net margin",
+      },
     },
   },
 
@@ -380,6 +365,90 @@ const en: TranslationShape = {
     submitButton: "Send",
     email: "contact@momoia.com",
     successMessage: "Thank you, your message has been sent.",
+  },
+
+  authPages: {
+    login: {
+      eyebrow: "OAuth access",
+      title: "Sign in with Google or GitHub.",
+      description:
+        "This workspace uses OAuth-only authentication. No password is stored locally. After sign-in, you are redirected to",
+      authFailed: "Authentication failed:",
+      oauthCallbackHelp:
+        "Google or GitHub returned to the application, but processing the callback failed. Check NEXTAUTH_URL, the provider callback URL, the OAuth client secret, and the server logs.",
+      accessModelEyebrow: "Access model",
+      defaultRole: "New users receive the USER role by default.",
+      autoCreateAccount:
+        "On your first OAuth sign-in, the application account is automatically created in the database.",
+      adminPermission:
+        "Admin access depends on the ACCESS_ADMIN permission, not a simple role check.",
+      bootstrapAdmin:
+        "The first registered user, or any email listed in ADMIN_EMAILS, becomes an administrator.",
+      backHome: "Back to home",
+      signInWith: "Sign in with",
+      oauthLabel: "OAuth",
+    },
+    dashboard: {
+      eyebrow: "Dashboard",
+      welcomeBack: "Welcome back",
+      description:
+        "Your session relies on JWT, while roles and permissions are loaded from PostgreSQL through Prisma during sign-in.",
+      email: "Email",
+      noEmail: "No email available",
+      roles: "Roles",
+      permissions: "Permissions",
+      sessionPayload: "Session payload",
+      quickLinks: "Quick links",
+      profile: "Profile",
+      settings: "Settings",
+      admin: "Admin",
+    },
+    profile: {
+      eyebrow: "Profile",
+      title: "Account summary",
+      description:
+        "OAuth identity comes from NextAuth accounts, while effective access comes from role-permission assignments.",
+      identity: "Identity",
+      effectiveAuthorization: "Effective authorization",
+      name: "Name",
+      email: "Email",
+      connectedProviders: "Connected providers",
+      notProvided: "Not provided",
+      noProviderMetadata: "No provider metadata found",
+      roles: "Roles",
+      permissions: "Permissions",
+    },
+    settings: {
+      eyebrow: "Settings",
+      title: "Preferences space",
+      descriptionBefore:
+        "This page is protected and ready for user preferences, criteria, or notifications. Your account currently has",
+      descriptionAfter: "permissions.",
+      nextActions: "Next logical actions",
+      savePreferences: "Save preferences",
+      manageCriteria: "Manage criteria presets",
+    },
+    admin: {
+      eyebrow: "Admin",
+      title: "User directory and role assignments",
+      descriptionBefore: "This page is protected by the permission",
+      descriptionAfter:
+        "The same permission is enforced by the middleware and the /api/admin/users endpoint.",
+      user: "User",
+      unnamedUser: "Unnamed user",
+      email: "Email",
+      noEmail: "No email",
+      roles: "Roles",
+      permissions: "Permissions",
+      created: "Created",
+    },
+    accessDenied: {
+      title: "Access denied",
+      description:
+        "Your account is authenticated, but it does not have the required permission to access this area.",
+      backToDashboard: "Back to dashboard",
+      returnHome: "Return home",
+    },
   },
 
   agentgamePage: {

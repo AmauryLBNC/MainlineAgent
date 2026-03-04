@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { languages } from "@/components/i18n";
@@ -9,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export default function Header() {
   const { language, setLanguage, copy } = useI18n();
+  const router = useRouter();
   const { data: session, status } = useSession();
   const canAccessAdmin =
     session?.user.permissions.includes(PERMISSIONS.ACCESS_ADMIN) ?? false;
@@ -54,7 +56,14 @@ export default function Header() {
                   <button
                     key={lang}
                     type="button"
-                    onClick={() => setLanguage(lang)}
+                    onClick={() => {
+                      if (lang === language) {
+                        return;
+                      }
+
+                      setLanguage(lang);
+                      router.refresh();
+                    }}
                     className={cn(
                       "header-lang-button",
                       language === lang && "is-active"

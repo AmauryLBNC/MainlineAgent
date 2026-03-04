@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { copy, defaultLanguage, type Language } from "@/components/i18n";
+import {
+  copy,
+  defaultLanguage,
+  LANGUAGE_STORAGE_KEY,
+  type Language,
+} from "@/components/i18n";
 
 type I18nContextValue = {
   language: Language;
@@ -11,14 +16,41 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-const STORAGE_KEY = "mainagent-language";
+function readLanguageCookie() {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const cookieValue = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith(`${LANGUAGE_STORAGE_KEY}=`))
+    ?.split("=")[1];
+
+  return cookieValue === "fr" || cookieValue === "en" ? cookieValue : null;
+}
+
+function persistLanguage(language: Language) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  document.cookie = `${LANGUAGE_STORAGE_KEY}=${language}; path=/; max-age=31536000; samesite=lax`;
+  document.documentElement.lang = language;
+}
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() => {
+  const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window === "undefined") {
       return defaultLanguage;
     }
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+
+    const cookieLanguage = readLanguageCookie();
+    if (cookieLanguage) {
+      return cookieLanguage;
+    }
+
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (stored === "fr" || stored === "en") {
       return stored;
     }
@@ -28,9 +60,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, language);
-    document.documentElement.lang = language;
+    persistLanguage(language);
   }, [language]);
+
+  const setLanguage = (nextLanguage: Language) => {
+    persistLanguage(nextLanguage);
+    setLanguageState(nextLanguage);
+  };
 
   const value = useMemo<I18nContextValue>(
     () => ({
