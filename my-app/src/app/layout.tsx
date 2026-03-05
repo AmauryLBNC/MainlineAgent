@@ -28,6 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <header><meta name="google-site-verification" content="QYjx0K-HZ-A-fmMmvaMKnFSFjizjs6KscTJFuV81Rkg" /></header>
       <body
         className={`${libreBaskerville.variable} ${cormorantGaramond.variable} antialiased`}
       >
