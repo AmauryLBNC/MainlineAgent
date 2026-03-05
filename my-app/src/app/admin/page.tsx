@@ -3,11 +3,12 @@ import PageShell from "@/components/Base/PageShell";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import { requireAppAuth } from "@/lib/auth/session";
 import { getUsersWithRoles } from "@/lib/data/users";
+import type { UserWithRoles } from "@/lib/data/users";
 
 export default async function AdminPage() {
   const copy = await getServerCopy();
   await requireAppAuth(PERMISSIONS.ACCESS_ADMIN);
-  const users = await getUsersWithRoles();
+  const users: UserWithRoles[] = await getUsersWithRoles();
 
   return (
     <PageShell align="start" density={16}>

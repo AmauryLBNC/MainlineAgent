@@ -1,7 +1,62 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getUsersWithRoles() {
-  const users = await prisma.user.findMany({
+type RawRolePermission = {
+  permission: {
+    name: string;
+  };
+};
+
+type RawUserRole = {
+  role: {
+    name: string;
+    permissions: RawRolePermission[];
+  };
+};
+
+type RawUserWithRoles = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  createdAt: Date;
+  roles: RawUserRole[];
+};
+
+type RawUserSnapshot = RawUserWithRoles & {
+  updatedAt: Date;
+  accounts: {
+    provider: string;
+    type: string;
+  }[];
+};
+
+export type UserWithRoles = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  createdAt: Date;
+  roles: string[];
+  permissions: string[];
+};
+
+export type UserSnapshot = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  accounts: {
+    provider: string;
+    type: string;
+  }[];
+  roles: string[];
+  permissions: string[];
+};
+
+export async function getUsersWithRoles(): Promise<UserWithRoles[]> {
+  const users: RawUserWithRoles[] = await prisma.user.findMany({
     orderBy: {
       createdAt: "asc",
     },
@@ -32,25 +87,29 @@ export async function getUsersWithRoles() {
     },
   });
 
-  return users.map((user) => ({
+  return users.map((user): UserWithRoles => ({
     id: user.id,
     name: user.name,
     email: user.email,
     image: user.image,
     createdAt: user.createdAt,
-    roles: user.roles.map(({ role }) => role.name).sort(),
+    roles: user.roles.map((userRole) => userRole.role.name).sort(),
     permissions: Array.from(
       new Set(
-        user.roles.flatMap(({ role }) =>
-          role.permissions.map(({ permission }) => permission.name)
+        user.roles.flatMap((userRole) =>
+          userRole.role.permissions.map(
+            (rolePermission) => rolePermission.permission.name
+          )
         )
       )
     ).sort(),
   }));
 }
 
-export async function getUserSnapshot(userId: string) {
-  const user = await prisma.user.findUnique({
+export async function getUserSnapshot(
+  userId: string
+): Promise<UserSnapshot | null> {
+  const user: RawUserSnapshot | null = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       id: true,
@@ -92,11 +151,13 @@ export async function getUserSnapshot(userId: string) {
 
   return {
     ...user,
-    roles: user.roles.map(({ role }) => role.name).sort(),
+    roles: user.roles.map((userRole) => userRole.role.name).sort(),
     permissions: Array.from(
       new Set(
-        user.roles.flatMap(({ role }) =>
-          role.permissions.map(({ permission }) => permission.name)
+        user.roles.flatMap((userRole) =>
+          userRole.role.permissions.map(
+            (rolePermission) => rolePermission.permission.name
+          )
         )
       )
     ).sort(),
