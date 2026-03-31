@@ -5,16 +5,13 @@ import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { languages } from "@/components/i18n";
-import { PERMISSIONS } from "@/lib/auth/permissions";
 import { cn } from "@/lib/utils";
 
 export default function Header() {
   const { language, setLanguage, copy } = useI18n();
   const router = useRouter();
   const { data: session, status } = useSession();
-  const canAccessAdmin =
-    session?.user.permissions.includes(PERMISSIONS.ACCESS_ADMIN) ?? false;
-  const isAuthenticated = status === "authenticated";
+
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 header-bar">
@@ -28,6 +25,12 @@ export default function Header() {
 
           <div className="header-layout-center">
             <nav className="header-nav hidden lg:flex">
+              <Link className="nav-link" href="/posts/new">
+                Post
+              </Link>
+              <Link className="nav-link" href="/page_test">
+                Test Page
+              </Link>
               <Link className="nav-link" href="/">
                 {copy.header.nav.home}
               </Link>
@@ -74,34 +77,7 @@ export default function Header() {
                   </button>
                 ))}
               </div>
-              {isAuthenticated ? (
-                <>
-                  <Link className="header-action" href="/dashboard">
-                    {copy.header.dashboard}
-                  </Link>
-                  {canAccessAdmin ? (
-                    <Link className="header-action" href="/admin">
-                      {copy.header.admin}
-                    </Link>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="header-cta"
-                    onClick={() => signOut({ callbackUrl: "/login" })}
-                  >
-                    {copy.header.logout}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link className="header-action" href="/login">
-                    {copy.header.login}
-                  </Link>
-                  <Link className="header-cta" href="/login">
-                    {copy.header.getStarted}
-                  </Link>
-                </>
-              )}
+              
             </div>
           </div>
         </div>

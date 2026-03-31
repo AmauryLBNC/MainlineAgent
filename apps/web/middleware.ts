@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { PERMISSIONS } from "@/lib/auth/permissions";
 
 const protectedRoutes = ["/dashboard", "/profile", "/settings", "/admin"];
 
@@ -24,7 +23,7 @@ export async function middleware(request: NextRequest) {
   });
 
   if (!token) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/signin", request.url);
     loginUrl.searchParams.set("callbackUrl", `${pathname}${search}`);
     return NextResponse.redirect(loginUrl);
   }
@@ -34,9 +33,7 @@ export async function middleware(request: NextRequest) {
       ? token.permissions
       : [];
 
-    if (!permissions.includes(PERMISSIONS.ACCESS_ADMIN)) {
-      return NextResponse.redirect(new URL("/403", request.url));
-    }
+
   }
 
   return NextResponse.next();

@@ -2,16 +2,11 @@ import Link from "next/link";
 import { getServerCopy } from "@/components/i18n/server";
 import PageShell from "@/components/Base/PageShell";
 import { Button } from "@/components/ui/button";
-import { PERMISSIONS } from "@/lib/auth/permissions";
-import { requireAppAuth } from "@/lib/auth/session";
+
 
 export default async function DashboardPage() {
   const copy = await getServerCopy();
-  const session = await requireAppAuth(PERMISSIONS.VIEW_DASHBOARD);
-  const canAccessAdmin = session.user.permissions.includes(
-    PERMISSIONS.ACCESS_ADMIN
-  );
-
+ 
   return (
     <PageShell align="start" density={22}>
       <div className="w-full py-20">
@@ -22,7 +17,7 @@ export default async function DashboardPage() {
             </p>
             <h1 className="mt-4 font-display text-4xl text-primary">
               {copy.authPages.dashboard.welcomeBack}
-              {session.user.name ? `, ${session.user.name}` : ""}.
+
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">
               {copy.authPages.dashboard.description}
@@ -34,7 +29,6 @@ export default async function DashboardPage() {
                   {copy.authPages.dashboard.email}
                 </p>
                 <p className="mt-3 text-sm font-medium text-foreground">
-                  {session.user.email ?? copy.authPages.dashboard.noEmail}
                 </p>
               </article>
               <article className="rounded-[1.5rem] border border-border/70 bg-white/60 p-5">
@@ -42,7 +36,6 @@ export default async function DashboardPage() {
                   {copy.authPages.dashboard.roles}
                 </p>
                 <p className="mt-3 text-sm font-medium text-foreground">
-                  {session.user.roles.join(", ")}
                 </p>
               </article>
               <article className="rounded-[1.5rem] border border-border/70 bg-white/60 p-5">
@@ -50,7 +43,6 @@ export default async function DashboardPage() {
                   {copy.authPages.dashboard.permissions}
                 </p>
                 <p className="mt-3 text-sm font-medium text-foreground">
-                  {session.user.permissions.length}
                 </p>
               </article>
             </div>
@@ -62,7 +54,6 @@ export default async function DashboardPage() {
                 {copy.authPages.dashboard.sessionPayload}
               </h2>
               <pre className="mt-4 overflow-x-auto rounded-2xl bg-primary/95 p-4 text-xs leading-6 text-primary-foreground">
-                {JSON.stringify(session, null, 2)}
               </pre>
             </div>
 
@@ -79,11 +70,7 @@ export default async function DashboardPage() {
                     {copy.authPages.dashboard.settings}
                   </Link>
                 </Button>
-                {canAccessAdmin ? (
-                  <Button asChild variant="outline">
-                    <Link href="/admin">{copy.authPages.dashboard.admin}</Link>
-                  </Button>
-                ) : null}
+
               </div>
             </div>
           </section>

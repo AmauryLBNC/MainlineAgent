@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "MainAgent",
   description: "AI learning suite for modern investors",
 };
-
+/*<header><meta name="google-site-verification" content="QYjx0K-HZ-A-fmMmvaMKnFSFjizjs6KscTJFuV81Rkg" /></header>*/
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <header><meta name="google-site-verification" content="QYjx0K-HZ-A-fmMmvaMKnFSFjizjs6KscTJFuV81Rkg" /></header>
+      
       <body
         className={`${libreBaskerville.variable} ${cormorantGaramond.variable} antialiased`}
       >

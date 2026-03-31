@@ -40,31 +40,30 @@ function persistLanguage(language: Language) {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window === "undefined") {
-      return defaultLanguage;
-    }
+  const [language, setLanguageState] = useState<Language>(defaultLanguage);
 
+  useEffect(() => {
     const cookieLanguage = readLanguageCookie();
     if (cookieLanguage) {
-      return cookieLanguage;
+      setLanguageState(cookieLanguage);
+      return;
     }
 
     const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (stored === "fr" || stored === "en") {
-      return stored;
+      setLanguageState(stored);
+      return;
     }
 
     const browserLanguage = window.navigator.language.toLowerCase();
-    return browserLanguage.startsWith("fr") ? "fr" : "en";
-  });
+    setLanguageState(browserLanguage.startsWith("fr") ? "fr" : "en");
+  }, []);
 
   useEffect(() => {
     persistLanguage(language);
   }, [language]);
 
   const setLanguage = (nextLanguage: Language) => {
-    persistLanguage(nextLanguage);
     setLanguageState(nextLanguage);
   };
 

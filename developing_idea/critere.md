@@ -59,3 +59,5 @@ il faut ajoputer des variables de secteur et sous secteur et comparer uniquement
 il faut affiner cette base avec des variables de type string pour ameliorer mon jugement lors de la prise de decisions et pour que plus tard je sois en capacite de l exploiter et que ce soit deja pret
 il faut faire un systeme de comparaison pour etre le plus juste possible avec une application faites par moi meme
 il faut a chaque fois que je mette les reponses evidentes pourquoi la boite est bonne ou non je donne les variables qui a penche en plus ou en moins
+
+ce document expose des recherche il faut trouver comment a partir de texte deduire des variables comme ca les gros but de ce document est de trouver un systeme qui recupere suffisament e texte et en tire des conclusions quant a des variables subjetive il faut donc que trouver des methodes innovante pour recherche liees a des variables pour l ia cela est hautement liee a la recherche de données

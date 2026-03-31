@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerCopy } from "@/components/i18n/server";
 import PageShell from "@/components/Base/PageShell";
 import { Button } from "@/components/ui/button";
-import { LoginActions } from "@/components/auth/LoginActions";
-import { getAppAuthSession } from "@/lib/auth/session";
+
 
 type LoginPageProps = {
   searchParams?: Promise<{
@@ -14,12 +13,9 @@ type LoginPageProps = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await getAppAuthSession();
   const copy = await getServerCopy();
 
-  if (session) {
-    redirect("/dashboard");
-  }
+
 
   const params = searchParams ? await searchParams : undefined;
   const callbackUrl = params?.callbackUrl ?? "/dashboard";
@@ -55,11 +51,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </div>
             ) : null}
 
-            <LoginActions
-              callbackUrl={callbackUrl}
-              signInWith={copy.authPages.login.signInWith}
-              oauthLabel={copy.authPages.login.oauthLabel}
-            />
+
           </section>
 
           <aside className="rounded-[2rem] border border-[color:var(--panel-border)] bg-[color:var(--panel-bg)] p-8 shadow-[var(--panel-shadow)] backdrop-blur">

@@ -1,13 +1,9 @@
 import { getServerCopy } from "@/components/i18n/server";
 import PageShell from "@/components/Base/PageShell";
-import { PERMISSIONS } from "@/lib/auth/permissions";
-import { requireAppAuth } from "@/lib/auth/session";
-import { getUsersWithRoles } from "@/lib/data/users";
+
 
 export default async function AdminPage() {
   const copy = await getServerCopy();
-  await requireAppAuth(PERMISSIONS.ACCESS_ADMIN);
-  const users = await getUsersWithRoles();
 
   return (
     <PageShell align="start" density={16}>
@@ -38,25 +34,7 @@ export default async function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
-                  {users.map((user) => (
-                    <tr key={user.id} className="bg-white/40">
-                      <td className="px-5 py-4 text-foreground">
-                        {user.name ?? copy.authPages.admin.unnamedUser}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
-                        {user.email ?? copy.authPages.admin.noEmail}
-                      </td>
-                      <td className="px-5 py-4 text-foreground">
-                        {user.roles.join(", ")}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
-                        {user.permissions.join(", ")}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
-                        {new Date(user.createdAt).toLocaleDateString("en-GB")}
-                      </td>
-                    </tr>
-                  ))}
+
                 </tbody>
               </table>
             </div>
