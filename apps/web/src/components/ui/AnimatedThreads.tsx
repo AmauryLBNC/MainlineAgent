@@ -88,6 +88,14 @@ export default function AnimatedThreads({
       const perspective = 850;
       const centerX = width / 2;
       const centerY = height / 2;
+      const projected: Array<{
+        x: number;
+        y: number;
+        z: number;
+        scale: number;
+        radius: number;
+        pulse: number;
+      }> = [];
 
       for (const orb of orbsRef.current) {
         // mouvement autonome
@@ -113,17 +121,49 @@ export default function AnimatedThreads({
 
         const radius = orb.radius * scale;
 
-      
+        projected.push({
+          x: screenX,
+          y: screenY,
+          z: orb.z,
+          scale,
+          radius,
+          pulse,
+        });
 
-        // Fond principal discret
         ctx.fillStyle = `rgba(${glowR}, ${glowG}, ${glowB}, ${
           0.16 * pulse
         })`;
         ctx.beginPath();
         ctx.arc(screenX, screenY, radius, 0, TAU);
         ctx.fill();
+      }
 
-   
+      for (let index = 0; index < projected.length; index += 1) {
+        const current = projected[index];
+
+        for (let nextIndex = index + 1; nextIndex < projected.length; nextIndex += 1) {
+          const next = projected[nextIndex];
+          const dx = current.x - next.x;
+          const dy = current.y - next.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance > 220) {
+            continue;
+          }
+
+          const opacity =
+            (1 - distance / 220) *
+            0.18 *
+            Math.min(current.scale, next.scale) *
+            ((current.pulse + next.pulse) / 2);
+
+          ctx.strokeStyle = `rgba(${lineR}, ${lineG}, ${lineB}, ${opacity})`;
+          ctx.lineWidth = Math.max(0.5, Math.min(current.scale, next.scale) * 1.1);
+          ctx.beginPath();
+          ctx.moveTo(current.x, current.y);
+          ctx.lineTo(next.x, next.y);
+          ctx.stroke();
+        }
       }
 
       raf = requestAnimationFrame(draw);
@@ -141,7 +181,7 @@ export default function AnimatedThreads({
     <canvas
       ref={canvasRef}
       className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full",
+        "pointer-events-none absolute inset-0 h-full w-full mix-blend-plus-lighter",
         className
       )}
       aria-hidden="true"

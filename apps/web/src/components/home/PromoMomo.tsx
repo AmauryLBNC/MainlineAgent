@@ -1,41 +1,57 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { SectionShell, type ThreadTone } from "./SectionShell";
+import Link from "next/link"
+import { RiArrowRightLine } from "@remixicon/react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { SectionShell, type ThreadTone } from "./SectionShell"
 
 export type PromoMomoContent = {
-  eyebrow: string;
-  title: string;
-  description: string;
-  cta: string;
-};
+  eyebrow: string
+  title: string
+  description: string
+  cta: string
+}
 
 type PromoMomoProps = {
-  tone: ThreadTone;
-  animate: boolean;
-  content: PromoMomoContent;
-};
+  tone: ThreadTone
+  animate: boolean
+  content: PromoMomoContent
+}
 
 export function PromoMomo({ tone, animate, content }: PromoMomoProps) {
   return (
     <SectionShell id="momo" tone={tone} animate={animate} density={30}>
-      <div className="premium-panel w-full px-8 py-12 text-center sm:px-12 sm:py-14">
-        <p className="eyebrow">{content.eyebrow}</p>
-        <h1 className="mt-4 font-display text-3xl leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-          {content.title}
-        </h1>
-        <p className="mt-5 text-base text-slate-600 sm:text-lg">
-          {content.description}
-        </p>
-        <div className="mt-8 flex items-center justify-center">
-          <Button
-            asChild
-            variant="outline"
-            className="cta-soft shadow-none hover:shadow-none"
-          >
-            <Link href="/quiz/free">{content.cta}</Link>
+      <Card className="app-panel w-full rounded-[2rem] border-0 py-0">
+        <CardHeader className="gap-5 px-6 pt-6 sm:px-8 sm:pt-8">
+          <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+            {content.eyebrow}
+          </Badge>
+          <div className="space-y-4">
+            <CardTitle className="app-title max-w-4xl text-4xl leading-none sm:text-5xl lg:text-6xl">
+              {content.title}
+            </CardTitle>
+            <CardDescription className="app-copy max-w-2xl text-base leading-7 sm:text-lg">
+              {content.description}
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center justify-between gap-4 px-6 pb-6 sm:px-8 sm:pb-8">
+          <p className="app-kicker">{content.description}</p>
+          <Button asChild size="lg" className="rounded-full px-6">
+            <Link href="/momoia">
+              {content.cta}
+              <RiArrowRightLine />
+            </Link>
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </SectionShell>
-  );
+  )
 }

@@ -126,7 +126,18 @@ npm run prisma:seed
 npm run prisma:studio
 npm run build
 npm run lint
+npm run buffett:train
+npm run buffett:api
+npm run buffett:test
 ```
+
+## Backend Buffett ML
+
+Un backend Python dedie permet maintenant de scorer des entreprises financieres selon des criteres inspires de Warren Buffett avec un `RandomForestRegressor`.
+
+Documentation :
+
+- `docs/buffett-ml-api.md`
 
 ## Fichiers importants
 

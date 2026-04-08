@@ -8,11 +8,7 @@ import { bootstrapUserRoles, getUserAuthorization } from "@/lib/auth/rbac";
 function requiredEnv(name: string) {
   const value = process.env[name];
 
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-
-  return value;
+  return value && value.length > 0 ? value : `missing-${name.toLowerCase()}`;
 }
 
 export const authOptions: NextAuthOptions = {

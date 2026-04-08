@@ -131,6 +131,7 @@ model FinancialMetrics {
   revenue       Decimal?  @db.Decimal(18, 4)
   netIncome     Decimal?  @db.Decimal(18, 4)
   debt          Decimal?  @db.Decimal(18, 4)
+  shareholdersEquity Decimal? @db.Decimal(18, 4)
   freeCashFlow  Decimal?  @db.Decimal(18, 4)
   ebitda        Decimal?  @db.Decimal(18, 4)
   peRatio       Decimal?  @db.Decimal(10, 4)

@@ -52,7 +52,7 @@ export function Reveal({
         visible ? visibleClass : hiddenClass,
         className
       )}
-      style={delayMs ? { transitionDelay: `${delayMs}ms` } : undefined}
+      style={delayMs ? { animationDelay: `${delayMs}ms` } : undefined}
     >
       {children}
     </div>

@@ -33,24 +33,33 @@ export function SectionShell({
   animate = true,
   contentClassName,
 }: SectionShellProps) {
+  const [lineR, lineG, lineB] = tone.line;
+  const [glowR, glowG, glowB] = tone.glow;
+
   return (
     <section
       id={id}
-      className="relative min-h-screen w-full px-4 sm:px-6 lg:px-10"
+      className="relative min-h-screen w-full overflow-hidden px-4 sm:px-6 lg:px-10"
     >
-      <div className="absolute inset-0 sand-backdrop" />
-      <div className="absolute inset-0 sand-haze opacity-70" />
+      <div className="absolute inset-0 app-backdrop" />
+      <div className="absolute inset-0 app-grid opacity-65" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(circle at 20% 15%, rgba(${glowR}, ${glowG}, ${glowB}, 0.18), transparent 26%), radial-gradient(circle at 82% 22%, rgba(${lineR}, ${lineG}, ${lineB}, 0.14), transparent 24%)`,
+        }}
+      />
       {animate ? (
         <AnimatedThreads
           tone={tone}
           density={density}
           speed={0.45}
-          className="opacity-30"
+          className="opacity-55"
         />
       ) : null}
       <div
         className={cn(
-          "relative z-10 mx-auto flex min-h-screen max-w-[1100px] items-center pb-16 pt-28",
+          "relative z-10 mx-auto flex min-h-screen max-w-7xl items-center pb-16 pt-28 sm:pt-32",
           contentClassName
         )}
       >

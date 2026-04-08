@@ -1,8 +1,25 @@
-import { getServerCopy } from "@/components/i18n/server";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import PageShell from "@/components/Base/PageShell";
+import { getServerCopy } from "@/components/i18n/server";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import { requireAppAuth } from "@/lib/auth/session";
 import { getUsersWithRoles } from "@/lib/data/users";
+
+type AdminUser = Awaited<ReturnType<typeof getUsersWithRoles>>[number];
 
 export default async function AdminPage() {
   const copy = await getServerCopy();
@@ -12,55 +29,52 @@ export default async function AdminPage() {
   return (
     <PageShell align="start" density={16}>
       <div className="w-full py-20">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6">
-         
+        <div className="mx-auto flex max-w-7xl flex-col gap-6">
+          <Card className="app-panel rounded-[2rem] border-0 py-0">
+            <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+              <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+                {copy.authPages.admin.eyebrow}
+              </Badge>
+              <CardTitle className="app-title text-4xl sm:text-5xl">
+                {copy.authPages.admin.title}
+              </CardTitle>
+            </CardHeader>
+          </Card>
 
-          <section className="overflow-hidden rounded-[1.75rem] border border-[color:var(--panel-border)] bg-[color:var(--panel-bg)] shadow-[var(--panel-shadow)] backdrop-blur">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border/70 text-sm">
-                <thead className="bg-white/70">
-                  <tr className="text-left uppercase tracking-[0.22em] text-muted-foreground">
-                    <th className="px-5 py-4 font-medium">
-                      {copy.authPages.admin.user}
-                    </th>
-                    <th className="px-5 py-4 font-medium">
-                      {copy.authPages.admin.email}
-                    </th>
-                    <th className="px-5 py-4 font-medium">
-                      {copy.authPages.admin.roles}
-                    </th>
-                    <th className="px-5 py-4 font-medium">
-                      {copy.authPages.admin.permissions}
-                    </th>
-                    <th className="px-5 py-4 font-medium">
-                      {copy.authPages.admin.created}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
-                  {users.map((user) => (
-                    <tr key={user.id} className="bg-white/40">
-                      <td className="px-5 py-4 text-foreground">
+          <Card className="app-panel-soft rounded-[2rem] border-0 py-0">
+            <CardContent className="px-3 py-3 sm:px-5 sm:py-5">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{copy.authPages.admin.user}</TableHead>
+                    <TableHead>{copy.authPages.admin.email}</TableHead>
+                    <TableHead>{copy.authPages.admin.roles}</TableHead>
+                    <TableHead>{copy.authPages.admin.permissions}</TableHead>
+                    <TableHead>{copy.authPages.admin.created}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user: AdminUser) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium text-foreground">
                         {user.name ?? copy.authPages.admin.unnamedUser}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
                         {user.email ?? copy.authPages.admin.noEmail}
-                      </td>
-                      <td className="px-5 py-4 text-foreground">
-                        {user.roles.join(", ")}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
+                      </TableCell>
+                      <TableCell>{user.roles.join(", ")}</TableCell>
+                      <TableCell className="text-muted-foreground">
                         {user.permissions.join(", ")}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString("en-GB")}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </PageShell>

@@ -1,0 +1,16 @@
+{
+  "name": "Delta Holdings",
+  "sector": "finance",
+  "country": "France",
+  "revenue": 820000000,
+  "net_income": 132000000,
+  "debt": 64000000,
+  "shareholders_equity": 470000000,
+  "free_cash_flow": 145000000,
+  "ebitda": 185000000,
+  "pe_ratio": 14.8,
+  "net_margin": 16.1,
+  "environmental_score": 72,
+  "social_score": 78,
+  "governance_score": 86
+}

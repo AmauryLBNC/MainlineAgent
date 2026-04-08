@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { Github, Globe, type LucideIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 type LoginActionsProps = {
@@ -26,16 +27,16 @@ export function LoginActions({
   oauthLabel,
 }: LoginActionsProps) {
   return (
-    <div className="mt-8 flex flex-col gap-3">
+    <div className="mt-8 grid gap-3">
       {providers.map((provider) => {
         const Icon = providerIcons[provider.id] ?? Globe;
 
         return (
           <Button
             key={provider.id}
-            variant="signin"
+            variant={provider.id === "google" ? "default" : "outline"}
             size="lg"
-            className="justify-between rounded-2xl px-5"
+            className="h-14 justify-between rounded-2xl px-5 text-sm"
             onClick={() =>
               signIn(provider.id, {
                 callbackUrl,
@@ -46,9 +47,12 @@ export function LoginActions({
               <Icon className="size-4" />
               {signInWith} {provider.name}
             </span>
-            <span className="text-xs uppercase tracking-[0.3em] text-primary-foreground/70">
+            <Badge
+              variant={provider.id === "google" ? "secondary" : "outline"}
+              className="rounded-full px-2.5"
+            >
               {oauthLabel}
-            </span>
+            </Badge>
           </Button>
         );
       })}

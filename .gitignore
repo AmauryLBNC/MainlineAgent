@@ -1,6 +1,6 @@
 /video promo
 /non project file
-/data
+**/data
 **/.next/
 **/dist/
 **/build/
