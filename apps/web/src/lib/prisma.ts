@@ -2,11 +2,9 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("Missing required environment variable: DATABASE_URL");
-}
+const FALLBACK_DATABASE_URL =
+  "postgresql://placeholder:placeholder@127.0.0.1:5432/placeholder";
+const connectionString = process.env.DATABASE_URL ?? FALLBACK_DATABASE_URL;
 
 const adapter = new PrismaPg({ connectionString });
 

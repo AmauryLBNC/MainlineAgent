@@ -1,3 +1,10 @@
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { Language } from "@/components/i18n";
 import type { CompanyMetricCard } from "../types";
 import { formatCompanyMetricsDate } from "../utils";
@@ -20,34 +27,34 @@ export function CompanyFinancialsSection({
   language,
 }: CompanyFinancialsSectionProps) {
   return (
-    <section className="premium-panel px-8 py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow">{eyebrow}</p>
-          <h2 className="mt-3 font-display text-2xl text-slate-900">{title}</h2>
+    <Card className="app-panel rounded-[2rem] border-0 py-0">
+      <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-4">
+            <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+              {eyebrow}
+            </Badge>
+            <CardTitle className="app-title text-2xl sm:text-3xl">
+              {title}
+            </CardTitle>
+          </div>
+          {latestMetricsAsOf ? (
+            <Badge variant="secondary" className="rounded-full px-3 py-1">
+              {asOfLabel}: {formatCompanyMetricsDate(latestMetricsAsOf, language)}
+            </Badge>
+          ) : null}
         </div>
-        {latestMetricsAsOf ? (
-          <p className="text-sm text-slate-500">
-            {asOfLabel}: {formatCompanyMetricsDate(latestMetricsAsOf, language)}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      </CardHeader>
+      <CardContent className="grid gap-3 px-6 pb-6 sm:grid-cols-2 sm:px-8 sm:pb-8 xl:grid-cols-4">
         {financialCards.map((financialCard) => (
-          <article
-            key={financialCard.label}
-            className="rounded-[1.5rem] border border-[rgba(120,105,85,0.18)] bg-white/70 p-5"
-          >
-            <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">
-              {financialCard.label}
-            </p>
-            <p className="mt-3 font-display text-2xl text-slate-900">
+          <div key={financialCard.label} className="app-metric rounded-2xl px-4 py-4">
+            <p className="app-kicker">{financialCard.label}</p>
+            <p className="mt-3 text-xl font-semibold text-foreground">
               {financialCard.value}
             </p>
-          </article>
+          </div>
         ))}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

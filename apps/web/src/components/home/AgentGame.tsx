@@ -1,5 +1,13 @@
 import Link from "next/link";
+import { RiArrowRightLine, RiRobot2Line } from "@remixicon/react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { SectionShell, type ThreadTone } from "./SectionShell";
 
 export type AgentGameContent = {
@@ -20,31 +28,53 @@ type AgentGameProps = {
 export function AgentGame({ tone, animate, content }: AgentGameProps) {
   return (
     <SectionShell id="agentgame" tone={tone} animate={animate} density={30}>
-      <div className="premium-panel w-full p-8 sm:p-12">
-        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-5">
-            <p className="eyebrow">{content.eyebrow}</p>
-            <h2 className="font-display text-3xl text-slate-900 sm:text-4xl">
+      <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <Card className="app-panel rounded-[2rem] border-0 py-0">
+          <CardHeader className="space-y-5 px-6 pt-6 sm:px-8 sm:pt-8">
+            <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+              {content.eyebrow}
+            </Badge>
+            <CardTitle className="app-title text-4xl sm:text-5xl">
               {content.title}
-            </h2>
-            <p className="text-base text-slate-600">{content.description}</p>
-            <Button
-              asChild
-              variant="outline"
-              className="cta-soft shadow-none hover:shadow-none"
-            >
-              <Link href="/signup">{content.cta}</Link>
+            </CardTitle>
+            <p className="app-copy max-w-2xl text-base leading-7 sm:text-lg">
+              {content.description}
+            </p>
+          </CardHeader>
+          <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
+            <Button asChild size="lg" className="rounded-full px-6">
+              <Link href="/login?callbackUrl=/agentgame">
+                {content.cta}
+                <RiArrowRightLine />
+              </Link>
             </Button>
-          </div>
-          <div className="premium-panel-soft p-6 sm:p-8">
-            <p className="eyebrow">{content.receiveEyebrow}</p>
-            <ul className="mt-4 space-y-2 text-sm text-slate-600">
-              {content.receiveBullets.map((bullet) => (
-                <li key={bullet}>{bullet}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card className="app-panel-soft rounded-[2rem] border-0 py-0">
+          <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+            <div className="flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <RiRobot2Line className="size-5" />
+              </div>
+              <Badge variant="secondary" className="rounded-full px-3 py-1">
+                {content.receiveEyebrow}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-3 px-6 pb-6 sm:px-8 sm:pb-8">
+            {content.receiveBullets.map((bullet, index) => (
+              <div key={bullet} className="app-choice rounded-2xl px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="rounded-full px-2.5">
+                    {index + 1}
+                  </Badge>
+                  <p className="app-copy text-sm leading-7">{bullet}</p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </SectionShell>
   );

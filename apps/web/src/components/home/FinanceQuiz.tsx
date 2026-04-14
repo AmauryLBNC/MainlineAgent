@@ -1,81 +1,79 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { SectionShell, type ThreadTone } from "./SectionShell";
+import { useState } from "react"
+import Link from "next/link"
+import { RiArrowRightLine } from "@remixicon/react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
+import { SectionShell, type ThreadTone } from "./SectionShell"
 
 export type QuizQuestion = {
-  prompt: string;
-  options: string[];
-  correct: number;
-  note: string;
-};
+  prompt: string
+  options: string[]
+  correct: number
+  note: string
+}
 
 export type FinanceQuizContent = {
-  eyebrow: string;
-  title: string;
-  description: string;
-  pausedStatus: string;
-  runningStatus: string;
-  correctLabel: string;
-  reviewLabel: string;
-  resultLabel: string;
-  completedMessage: string;
-  pendingMessage: string;
-  longQuizCta: string;
-  exitCta: string;
-  questions: QuizQuestion[];
-};
+  eyebrow: string
+  title: string
+  description: string
+  pausedStatus: string
+  runningStatus: string
+  correctLabel: string
+  reviewLabel: string
+  resultLabel: string
+  completedMessage: string
+  pendingMessage: string
+  longQuizCta: string
+  exitCta: string
+  questions: QuizQuestion[]
+}
 
 type FinanceQuizProps = {
-  tone: ThreadTone;
-  animate: boolean;
-  rotationPaused: boolean;
-  content: FinanceQuizContent;
-  onInteract: () => void;
-  onComplete: () => void;
-  onExit: () => void;
-};
+  tone: ThreadTone
+  animate: boolean
+  content: FinanceQuizContent
+}
 
 export function FinanceQuiz({
   tone,
   animate,
-  rotationPaused,
   content,
-  onInteract,
-  onComplete,
-  onExit,
 }: FinanceQuizProps) {
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     content.questions.map(() => null)
-  );
+  )
 
   const handleSelect = (questionIndex: number, optionIndex: number) => {
     setAnswers((previousAnswers) => {
-      const nextAnswers = [...previousAnswers];
-      nextAnswers[questionIndex] = optionIndex;
-      return nextAnswers;
-    });
-    onInteract();
-  };
+      const nextAnswers = [...previousAnswers]
+      nextAnswers[questionIndex] = optionIndex
+      return nextAnswers
+    })
+  }
 
   const score = answers.reduce<number>((totalScore, answer, questionIndex) => {
     if (answer === content.questions[questionIndex]?.correct) {
-      return totalScore + 1;
+      return totalScore + 1
     }
 
-    return totalScore;
-  }, 0);
+    return totalScore
+  }, 0)
 
-  const completed = answers.every((answer) => answer !== null);
-
-  useEffect(() => {
-    if (completed && rotationPaused) {
-      onComplete();
-    }
-  }, [completed, onComplete, rotationPaused]);
+  const answeredCount = answers.filter((answer) => answer !== null).length
+  const completed = answers.every((answer) => answer !== null)
 
   return (
     <SectionShell
@@ -85,125 +83,167 @@ export function FinanceQuiz({
       density={28}
       contentClassName="items-start"
     >
-      <div
-        className="premium-panel flex max-h-[calc(100dvh-9rem)] w-full flex-col overflow-hidden px-8 py-10 sm:px-12 sm:py-12"
-        onPointerDown={onInteract}
-        onFocusCapture={onInteract}
-      >
-        <div className="flex shrink-0 flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="eyebrow">{content.eyebrow}</p>
-            <h2 className="mt-3 font-display text-3xl text-slate-900">
-              {content.title}
-            </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              {content.description}
-            </p>
+      <Card className="app-panel flex max-h-[calc(100dvh-9.5rem)] w-full rounded-[2rem] border-0 py-0">
+        <CardHeader className="space-y-5 border-b border-border/70 px-6 py-6 sm:px-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-3">
+              <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+                {content.eyebrow}
+              </Badge>
+              <CardTitle className="app-title text-3xl sm:text-4xl">
+                {content.title}
+              </CardTitle>
+              <p className="app-copy max-w-3xl text-sm leading-7 sm:text-base">
+                {content.description}
+              </p>
+            </div>
+
+            <Badge variant="secondary" className="rounded-full px-3 py-1">
+              {content.runningStatus}
+            </Badge>
           </div>
-          <div className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-            {rotationPaused ? content.pausedStatus : content.runningStatus}
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs uppercase tracking-[0.24em] text-muted-foreground">
+              <span>{content.resultLabel}</span>
+              <span>
+                {answeredCount}/{content.questions.length}
+              </span>
+            </div>
+            <Progress
+              value={(answeredCount / content.questions.length) * 100}
+              className="h-2 rounded-full"
+            />
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="mt-8 flex min-h-0 flex-1 overflow-hidden">
-          <div
-            className="scrollbar-hidden -mr-2 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-4"
-            data-quiz-scroll="true"
-            onWheel={(event) => event.stopPropagation()}
-            onTouchStart={(event) => event.stopPropagation()}
-            onTouchMove={(event) => event.stopPropagation()}
-          >
-            <div className="space-y-6">
-              {content.questions.map((question, questionIndex) => {
-                const selectedAnswer = answers[questionIndex];
+        <CardContent className="min-h-0 flex-1 px-6 pb-6 sm:px-8">
+          <div className="h-full rounded-[1.5rem] border border-border/60 bg-background/55 p-1">
+            <ScrollArea className="swiper-no-mousewheel swiper-no-swiping h-[calc(100dvh-25.5rem)] rounded-[1.25rem] px-5 sm:px-6">
+              <div className="space-y-5 py-6 pr-2">
+                {content.questions.map((question, questionIndex) => {
+                  const selectedAnswer = answers[questionIndex]
 
-                return (
-                  <div key={question.prompt} className="space-y-3">
-                    <p className="text-sm font-semibold text-slate-900">
-                      {questionIndex + 1}. {question.prompt}
-                    </p>
-                    <div className="grid gap-2">
-                      {question.options.map((option, optionIndex) => {
-                        const isSelected = selectedAnswer === optionIndex;
-                        const isAnswered = selectedAnswer !== null;
-                        const isCorrect = question.correct === optionIndex;
-                        const showCorrect = isAnswered && isCorrect;
-                        const showWrong = isAnswered && isSelected && !isCorrect;
-
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            className={cn(
-                              "quiz-option",
-                              isSelected && "is-selected",
-                              showCorrect && "is-correct",
-                              showWrong && "is-wrong"
-                            )}
-                            onClick={() => handleSelect(questionIndex, optionIndex)}
-                            aria-pressed={isSelected}
-                          >
-                            <span>{option}</span>
-                            {isAnswered ? (
-                              <span className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
-                                {isCorrect
-                                  ? content.correctLabel
+                  return (
+                    <Card
+                      key={question.prompt}
+                      size="sm"
+                      className="app-panel-soft rounded-[1.6rem] border-0 py-0"
+                    >
+                      <CardHeader className="space-y-3 px-5 pt-5">
+                        <div className="flex items-center justify-between gap-4">
+                          <Badge variant="outline" className="rounded-full px-2.5">
+                            {questionIndex + 1}
+                          </Badge>
+                          {selectedAnswer !== null ? (
+                            <Badge
+                              variant={
+                                selectedAnswer === question.correct
+                                  ? "secondary"
+                                  : "destructive"
+                              }
+                              className="rounded-full px-2.5"
+                            >
+                              {selectedAnswer === question.correct
+                                ? content.correctLabel
+                                : content.reviewLabel}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <CardTitle className="text-base leading-7 text-foreground">
+                          {question.prompt}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 px-5 pb-5">
+                        <div className="grid gap-2">
+                          {question.options.map((option, optionIndex) => {
+                            const isSelected = selectedAnswer === optionIndex
+                            const isAnswered = selectedAnswer !== null
+                            const isCorrect = question.correct === optionIndex
+                            const state =
+                              isAnswered && isCorrect
+                                ? "correct"
+                                : isAnswered && isSelected
+                                  ? "wrong"
                                   : isSelected
-                                    ? content.reviewLabel
-                                    : ""}
-                              </span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {selectedAnswer !== null ? (
-                      <p className="text-xs text-slate-500">{question.note}</p>
-                    ) : null}
+                                    ? "active"
+                                    : "idle"
+
+                            return (
+                              <Button
+                                key={option}
+                                type="button"
+                                variant="outline"
+                                className={cn(
+                                  "h-auto justify-between rounded-2xl px-4 py-3 text-left whitespace-normal",
+                                  state === "active" &&
+                                    "border-primary/35 bg-accent text-foreground",
+                                  state === "correct" &&
+                                    "border-emerald-500/35 bg-emerald-50 text-emerald-950",
+                                  state === "wrong" &&
+                                    "border-destructive/35 bg-destructive/10 text-destructive"
+                                )}
+                                onClick={() =>
+                                  handleSelect(questionIndex, optionIndex)
+                                }
+                                aria-pressed={isSelected}
+                              >
+                                <span className="flex-1">{option}</span>
+                                {isAnswered ? (
+                                  <span className="font-mono text-[0.64rem] uppercase tracking-[0.24em]">
+                                    {isCorrect
+                                      ? content.correctLabel
+                                      : isSelected
+                                        ? content.reviewLabel
+                                        : ""}
+                                  </span>
+                                ) : null}
+                              </Button>
+                            )
+                          })}
+                        </div>
+
+                        {selectedAnswer !== null ? (
+                          <p className="app-copy text-sm leading-7">
+                            {question.note}
+                          </p>
+                        ) : null}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+
+                <Separator />
+
+                <div className="grid gap-5 pb-4 lg:grid-cols-[0.75fr_1fr]">
+                  <Card className="app-panel-soft rounded-[1.6rem] border-0 py-0">
+                    <CardContent className="space-y-3 px-5 py-5">
+                      <p className="app-kicker">{content.resultLabel}</p>
+                      <p className="app-title text-4xl">
+                        {score}/{content.questions.length}
+                      </p>
+                      <p className="app-copy text-sm leading-7">
+                        {completed
+                          ? content.completedMessage
+                          : content.pendingMessage}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button asChild variant="outline" className="rounded-full px-5">
+                      <Link href="/momoia">
+                        {content.longQuizCta}
+                        <RiArrowRightLine />
+                      </Link>
+                    </Button>
                   </div>
-                );
-              })}
-            </div>
-
-            <div className="soft-divider my-8" />
-
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-1">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-                  {content.resultLabel}
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900">
-                  {score}/{content.questions.length}
-                </p>
-                <p className="text-sm text-slate-600">
-                  {completed
-                    ? content.completedMessage
-                    : content.pendingMessage}
-                </p>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  asChild
-                  variant="outline"
-                  className="cta-soft shadow-none hover:shadow-none"
-                >
-                  <Link href="/quiz/free">{content.longQuizCta}</Link>
-                </Button>
-                {rotationPaused ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="cta-soft shadow-none hover:shadow-none"
-                    onClick={onExit}
-                  >
-                    {content.exitCta}
-                  </Button>
-                ) : null}
-              </div>
-            </div>
+            </ScrollArea>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </SectionShell>
-  );
+  )
 }

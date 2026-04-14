@@ -1,3 +1,11 @@
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 type CompanyPresentationSectionProps = {
   eyebrow: string;
   title: string;
@@ -14,25 +22,38 @@ export function CompanyPresentationSection({
   investmentCasePoints,
 }: CompanyPresentationSectionProps) {
   return (
-    <div className="premium-panel px-8 py-10">
-      <p className="eyebrow">{eyebrow}</p>
-      <h2 className="mt-3 font-display text-2xl text-slate-900">{title}</h2>
-      <div className="mt-5 space-y-4 text-sm leading-7 text-slate-600">
-        {overviewParagraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
-
-      <div className="mt-8">
-        <h3 className="font-display text-xl text-slate-900">
-          {investmentCaseTitle}
-        </h3>
-        <ul className="mt-4 space-y-2 text-sm text-slate-600">
-          {investmentCasePoints.map((investmentCasePoint) => (
-            <li key={investmentCasePoint}>- {investmentCasePoint}</li>
+    <Card className="app-panel rounded-[2rem] border-0 py-0">
+      <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+        <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+          {eyebrow}
+        </Badge>
+        <CardTitle className="app-title text-2xl sm:text-3xl">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8">
+        <div className="space-y-4">
+          {overviewParagraphs.map((paragraph) => (
+            <p key={paragraph} className="app-copy text-sm leading-7 sm:text-base">
+              {paragraph}
+            </p>
           ))}
-        </ul>
-      </div>
-    </div>
+        </div>
+
+        <div className="space-y-3">
+          <p className="app-kicker">{investmentCaseTitle}</p>
+          <div className="grid gap-3">
+            {investmentCasePoints.map((investmentCasePoint) => (
+              <div
+                key={investmentCasePoint}
+                className="app-choice rounded-2xl px-4 py-4"
+              >
+                <p className="app-copy text-sm leading-7">{investmentCasePoint}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

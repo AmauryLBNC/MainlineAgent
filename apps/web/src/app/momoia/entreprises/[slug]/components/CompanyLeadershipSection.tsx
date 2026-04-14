@@ -1,3 +1,12 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 type CompanyLeadershipSectionProps = {
   eyebrow: string;
   leaderName: string;
@@ -18,34 +27,46 @@ export function CompanyLeadershipSection({
   websiteLabel,
 }: CompanyLeadershipSectionProps) {
   return (
-    <div className="premium-panel px-8 py-10">
-      <p className="eyebrow">{eyebrow}</p>
-      <h2 className="mt-3 font-display text-2xl text-slate-900">{leaderName}</h2>
-      <p className="mt-2 text-sm uppercase tracking-[0.26em] text-slate-500">
-        {leaderRole}
-      </p>
-      <div className="mt-5 space-y-4 text-sm leading-7 text-slate-600">
-        {biographyParagraphs.map((biographyParagraph) => (
-          <p key={biographyParagraph}>{biographyParagraph}</p>
-        ))}
-      </div>
-      <ul className="mt-5 space-y-2 text-sm text-slate-600">
-        {highlightPoints.map((highlightPoint) => (
-          <li key={highlightPoint}>- {highlightPoint}</li>
-        ))}
-      </ul>
-      {websiteUrl ? (
-        <div className="mt-6">
-          <a
-            href={websiteUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-primary underline-offset-4 hover:underline"
-          >
-            {websiteLabel}
-          </a>
+    <Card className="app-panel-soft rounded-[2rem] border-0 py-0">
+      <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+        <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
+          {eyebrow}
+        </Badge>
+        <CardTitle className="app-title text-2xl sm:text-3xl">
+          {leaderName}
+        </CardTitle>
+        <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
+          {leaderRole}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-5 px-6 pb-6 sm:px-8 sm:pb-8">
+        <div className="space-y-4">
+          {biographyParagraphs.map((biographyParagraph) => (
+            <p
+              key={biographyParagraph}
+              className="app-copy text-sm leading-7 sm:text-base"
+            >
+              {biographyParagraph}
+            </p>
+          ))}
         </div>
-      ) : null}
-    </div>
+
+        <div className="grid gap-3">
+          {highlightPoints.map((highlightPoint) => (
+            <div key={highlightPoint} className="app-choice rounded-2xl px-4 py-4">
+              <p className="app-copy text-sm leading-7">{highlightPoint}</p>
+            </div>
+          ))}
+        </div>
+
+        {websiteUrl ? (
+          <Button asChild variant="outline" className="rounded-full px-5">
+            <a href={websiteUrl} target="_blank" rel="noreferrer">
+              {websiteLabel}
+            </a>
+          </Button>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }

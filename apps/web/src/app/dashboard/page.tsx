@@ -1,94 +1,92 @@
-import Link from "next/link";
-import { getServerCopy } from "@/components/i18n/server";
-import PageShell from "@/components/Base/PageShell";
-import { Button } from "@/components/ui/button";
-import { PERMISSIONS } from "@/lib/auth/permissions";
-import { requireAppAuth } from "@/lib/auth/session";
+import Link from "next/link"
+
+import PageShell from "@/components/Base/PageShell"
+import { getServerCopy } from "@/components/i18n/server"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PERMISSIONS } from "@/lib/auth/permissions"
+import { requireAppAuth } from "@/lib/auth/session"
 
 export default async function DashboardPage() {
-  const copy = await getServerCopy();
-  const session = await requireAppAuth(PERMISSIONS.VIEW_DASHBOARD);
+  const copy = await getServerCopy()
+  const session = await requireAppAuth(PERMISSIONS.VIEW_DASHBOARD)
   const canAccessAdmin = session.user.permissions.includes(
     PERMISSIONS.ACCESS_ADMIN
-  );
+  )
+
+  const actions = [
+    {
+      href: "/profile",
+      title: copy.authPages.dashboard.profile,
+      description: copy.authPages.dashboard.profileDescription,
+      variant: "default" as const,
+    },
+    {
+      href: "/settings",
+      title: copy.authPages.dashboard.settings,
+      description: copy.authPages.dashboard.settingsDescription,
+      variant: "outline" as const,
+    },
+    ...(canAccessAdmin
+      ? [
+          {
+            href: "/admin",
+            title: copy.authPages.dashboard.admin,
+            description: copy.authPages.dashboard.adminDescription,
+            variant: "outline" as const,
+          },
+        ]
+      : []),
+  ]
 
   return (
     <PageShell align="start" density={22}>
       <div className="w-full py-20">
         <div className="mx-auto flex max-w-5xl flex-col gap-6">
-          <section className="rounded-[2rem] border border-[color:var(--panel-border)] bg-[linear-gradient(155deg,rgba(255,255,255,0.92),rgba(245,238,227,0.72))] p-8 shadow-[var(--panel-shadow)] backdrop-blur">
-            <p className="font-display text-sm uppercase tracking-[0.35em] text-muted-foreground">
-              {copy.authPages.dashboard.eyebrow}
-            </p>
-            <h1 className="mt-4 font-display text-4xl text-primary">
-              {copy.authPages.dashboard.welcomeBack}
-              {session.user.name ? `, ${session.user.name}` : ""}.
-            </h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">
-              {copy.authPages.dashboard.description}
-            </p>
+          <Card className="app-panel rounded-[2rem] border-0 py-0">
+            <CardHeader className="space-y-5 px-6 pt-6 sm:px-8 sm:pt-8">
+              <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
+                {copy.authPages.dashboard.eyebrow}
+              </Badge>
+              <CardTitle className="app-title text-4xl sm:text-5xl">
+                {copy.authPages.dashboard.welcomeBack}
+                {session.user.name ? `, ${session.user.name}` : ""}
+              </CardTitle>
+              <p className="app-copy max-w-2xl text-sm leading-7 sm:text-base">
+                {copy.authPages.dashboard.description}
+              </p>
+            </CardHeader>
+          </Card>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
-              <article className="rounded-[1.5rem] border border-border/70 bg-white/60 p-5">
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  {copy.authPages.dashboard.email}
-                </p>
-                <p className="mt-3 text-sm font-medium text-foreground">
-                  {session.user.email ?? copy.authPages.dashboard.noEmail}
-                </p>
-              </article>
-              <article className="rounded-[1.5rem] border border-border/70 bg-white/60 p-5">
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  {copy.authPages.dashboard.roles}
-                </p>
-                <p className="mt-3 text-sm font-medium text-foreground">
-                  {session.user.roles.join(", ")}
-                </p>
-              </article>
-              <article className="rounded-[1.5rem] border border-border/70 bg-white/60 p-5">
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  {copy.authPages.dashboard.permissions}
-                </p>
-                <p className="mt-3 text-sm font-medium text-foreground">
-                  {session.user.permissions.length}
-                </p>
-              </article>
-            </div>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-[1.75rem] border border-[color:var(--panel-border)] bg-[color:var(--panel-bg)] p-6 shadow-[var(--panel-shadow)] backdrop-blur">
-              <h2 className="font-display text-2xl text-primary">
-                {copy.authPages.dashboard.sessionPayload}
-              </h2>
-              <pre className="mt-4 overflow-x-auto rounded-2xl bg-primary/95 p-4 text-xs leading-6 text-primary-foreground">
-                {JSON.stringify(session, null, 2)}
-              </pre>
-            </div>
-
-            <div className="rounded-[1.75rem] border border-[color:var(--panel-border)] bg-[color:var(--panel-bg)] p-6 shadow-[var(--panel-shadow)] backdrop-blur">
-              <h2 className="font-display text-2xl text-primary">
-                {copy.authPages.dashboard.quickLinks}
-              </h2>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild variant="signin">
-                  <Link href="/profile">{copy.authPages.dashboard.profile}</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/settings">
-                    {copy.authPages.dashboard.settings}
-                  </Link>
-                </Button>
-                {canAccessAdmin ? (
-                  <Button asChild variant="outline">
-                    <Link href="/admin">{copy.authPages.dashboard.admin}</Link>
+          <div
+            className={`grid gap-4 ${
+              canAccessAdmin ? "md:grid-cols-3" : "md:grid-cols-2"
+            }`}
+          >
+            {actions.map((action) => (
+              <Card
+                key={action.href}
+                className="app-panel-soft rounded-[1.75rem] border-0 py-0"
+              >
+                <CardHeader className="space-y-3 px-6 pt-6">
+                  <CardTitle className="app-title text-2xl sm:text-3xl">
+                    {action.title}
+                  </CardTitle>
+                  <p className="app-copy text-sm leading-7">
+                    {action.description}
+                  </p>
+                </CardHeader>
+                <CardContent className="px-6 pb-6">
+                  <Button asChild variant={action.variant} className="rounded-full px-5">
+                    <Link href={action.href}>{action.title}</Link>
                   </Button>
-                ) : null}
-              </div>
-            </div>
-          </section>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </PageShell>
-  );
+  )
 }

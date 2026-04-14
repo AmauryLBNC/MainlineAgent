@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 type CompanyLikeButtonProps = {
@@ -70,20 +71,16 @@ export function CompanyLikeButton({
     <div className="flex flex-wrap items-center gap-3">
       <Button
         type="button"
-        variant={liked ? "secondary" : "signin"}
+        variant={liked ? "secondary" : "default"}
         className="rounded-full px-5"
         onClick={handleLike}
         disabled={isSubmitting}
       >
-        {status === "authenticated"
-          ? liked
-            ? removeLabel
-            : addLabel
-          : loginLabel}
+        {status === "authenticated" ? (liked ? removeLabel : addLabel) : loginLabel}
       </Button>
-      <p className="text-sm text-muted-foreground">
+      <Badge variant="outline" className="rounded-full px-3 py-1">
         {likesLabel}: {likesCount}
-      </p>
+      </Badge>
     </div>
   );
 }

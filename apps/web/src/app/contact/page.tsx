@@ -1,7 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { RiMailLine } from "@remixicon/react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import PageShell from "@/components/Base/PageShell";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
@@ -11,63 +23,108 @@ export default function Contact() {
 
   return (
     <PageShell align="center" density={22}>
-      <div className="premium-panel w-full p-8 sm:p-12">
-        <div className="space-y-6">
-          <div>
-            <p className="eyebrow">{copy.contact.eyebrow}</p>
-            <h1 className="mt-3 font-display text-3xl text-slate-900 sm:text-4xl">
-              {copy.contact.title}
-            </h1>
-            <p className="mt-2 text-sm text-slate-600">
-              {copy.contact.description}
-            </p>
-          </div>
+      <div className="w-full py-10">
+        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <Card className="app-panel-soft rounded-[2rem] border-0 py-0">
+            <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+              <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
+                {copy.contact.eyebrow}
+              </Badge>
+              <CardTitle className="app-title text-4xl sm:text-5xl">
+                {copy.contact.title}
+              </CardTitle>
+              <p className="app-copy text-sm leading-7 sm:text-base">
+                {copy.contact.description}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4 px-6 pb-6 sm:px-8 sm:pb-8">
+              <Alert className="rounded-2xl border-border/70 bg-background/70">
+                <RiMailLine className="size-4" />
+                <AlertTitle>{copy.contact.email}</AlertTitle>
+                <AlertDescription>
+                  Direct channel for investor onboarding and support.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
 
-          <form
-            className="space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setSent(true);
-            }}
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <input
-                className="w-full rounded-2xl border border-[rgba(120,105,85,0.2)] bg-white/70 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[rgba(120,105,85,0.25)]"
-                placeholder={copy.contact.placeholders.fullName}
-                required
-              />
-              <input
-                type="email"
-                className="w-full rounded-2xl border border-[rgba(120,105,85,0.2)] bg-white/70 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[rgba(120,105,85,0.25)]"
-                placeholder={copy.contact.placeholders.email}
-                required
-              />
-            </div>
-            <input
-              className="w-full rounded-2xl border border-[rgba(120,105,85,0.2)] bg-white/70 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[rgba(120,105,85,0.25)]"
-              placeholder={copy.contact.placeholders.subject}
-              required
-            />
-            <textarea
-              className="w-full rounded-2xl border border-[rgba(120,105,85,0.2)] bg-white/70 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[rgba(120,105,85,0.25)]"
-              placeholder={copy.contact.placeholders.message}
-              rows={5}
-              required
-            />
-            <div className="flex flex-wrap items-center gap-4">
-              <Button
-                type="submit"
-                variant="outline"
-                className="cta-soft shadow-none hover:shadow-none"
-              >
+          <Card className="app-panel rounded-[2rem] border-0 py-0">
+            <CardHeader className="space-y-4 px-6 pt-6 sm:px-8 sm:pt-8">
+              <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
                 {copy.contact.submitButton}
-              </Button>
-              <span className="text-sm text-slate-500">{copy.contact.email}</span>
-            </div>
-            {sent ? (
-              <p className="text-xs text-slate-500">{copy.contact.successMessage}</p>
-            ) : null}
-          </form>
+              </Badge>
+            </CardHeader>
+            <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
+              <form
+                className="space-y-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  setSent(true);
+                }}
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-name">
+                      {copy.contact.placeholders.fullName}
+                    </Label>
+                    <Input id="contact-name" required placeholder={copy.contact.placeholders.fullName} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-email">
+                      {copy.contact.placeholders.email}
+                    </Label>
+                    <Input
+                      id="contact-email"
+                      type="email"
+                      required
+                      placeholder={copy.contact.placeholders.email}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact-subject">
+                    {copy.contact.placeholders.subject}
+                  </Label>
+                  <Input
+                    id="contact-subject"
+                    required
+                    placeholder={copy.contact.placeholders.subject}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact-message">
+                    {copy.contact.placeholders.message}
+                  </Label>
+                  <Textarea
+                    id="contact-message"
+                    required
+                    rows={6}
+                    placeholder={copy.contact.placeholders.message}
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button type="submit" className="rounded-full px-5">
+                    {copy.contact.submitButton}
+                  </Button>
+                  <Badge variant="outline" className="rounded-full px-3 py-1">
+                    {copy.contact.email}
+                  </Badge>
+                </div>
+
+                {sent ? (
+                  <Alert className="rounded-2xl border-emerald-500/30 bg-emerald-50">
+                    <AlertTitle>{copy.contact.submitButton}</AlertTitle>
+                    <AlertDescription>
+                      {copy.contact.successMessage}
+                    </AlertDescription>
+                  </Alert>
+                ) : null}
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </PageShell>

@@ -28,24 +28,33 @@ export default function PageShell({
   align = "center",
   className,
 }: PageShellProps) {
+  const [glowR, glowG, glowB] = tone.glow;
+
   return (
     <section
       className={cn(
-        "relative min-h-screen w-full px-4 sm:px-6 lg:px-10",
+        "relative min-h-screen w-full overflow-hidden px-4 sm:px-6 lg:px-10",
         className
       )}
     >
-      <div className="absolute inset-0 sand-backdrop" />
-      <div className="absolute inset-0 sand-haze opacity-70" />
+      <div className="absolute inset-0 app-backdrop" />
+      <div className="absolute inset-0 app-grid opacity-65" />
+      <div
+        className="absolute inset-0 opacity-80"
+        style={{
+          background: `radial-gradient(circle at 50% 8%, rgba(${glowR}, ${glowG}, ${glowB}, 0.18), transparent 38%)`,
+        }}
+      />
+      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-white/60 to-transparent" />
       <AnimatedThreads
         tone={tone}
         density={density}
         speed={0.45}
-        className="opacity-30"
+        className="opacity-55"
       />
       <div
         className={cn(
-          "relative z-10 mx-auto flex min-h-screen max-w-[1100px] pb-16 pt-28",
+          "relative z-10 mx-auto flex min-h-screen max-w-7xl pb-16 pt-28 sm:pt-32",
           align === "start" ? "items-start" : "items-center"
         )}
       >
