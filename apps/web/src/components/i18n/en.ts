@@ -109,16 +109,20 @@ const en: TranslationShape = {
     quiz: {
       eyebrow: "Finance quiz",
       title: "Test your fundamentals",
-      description: "Five questions to validate your investor reflexes.",
-      pausedStatus: "Auto-rotation paused",
-      runningStatus: "Automatic rotation",
+      description: "Five questions to cover the essentials.",
       correctLabel: "Correct",
       reviewLabel: "Review",
       resultLabel: "Result",
-      completedMessage: "Quiz completed. Take time to review your choices.",
-      pendingMessage: "Select one answer per question.",
-      longQuizCta: "Take a longer quiz",
-      exitCta: "Exit quiz",
+      completedMessage: "Your final score out of 5 is now available.",
+      pendingMessage: "Choose one answer, then validate it.",
+      continueCta: "Continue to MomoIA",
+      validateCta: "Validate",
+      nextQuestionCta: "Next question",
+      finishCta: "Finish",
+      retryCta: "Try again",
+      finalScoreTitle: "Final score",
+      questionLabel: "Question",
+      progressLabel: "Progress",
       questions: [
         {
           prompt:

@@ -93,16 +93,20 @@ const fr = {
     quiz: {
       eyebrow: "Quiz financier",
       title: "Testez vos fondamentaux",
-      description: "Cinq questions pour verifier vos reflexes d'investisseur.",
-      pausedStatus: "Auto-rotation en pause",
-      runningStatus: "Rotation automatique",
+      description: "Cinq questions pour verifier l'essentiel.",
       correctLabel: "Correct",
       reviewLabel: "A revoir",
       resultLabel: "Resultat",
-      completedMessage: "Quiz termine. Prenez le temps de relire vos choix.",
-      pendingMessage: "Selectionnez une reponse par question.",
-      longQuizCta: "Faire un quiz plus long",
-      exitCta: "Quitter le quiz",
+      completedMessage: "Votre score final sur 5 est disponible.",
+      pendingMessage: "Choisissez une reponse puis validez.",
+      continueCta: "Continuer sur MomoIA",
+      validateCta: "Valider",
+      nextQuestionCta: "Question suivante",
+      finishCta: "Terminer",
+      retryCta: "Recommencer",
+      finalScoreTitle: "Score final",
+      questionLabel: "Question",
+      progressLabel: "Avancement",
       questions: [
         {
           prompt:
